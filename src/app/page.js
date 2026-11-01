@@ -139,6 +139,53 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="py-20 bg-neutral-900/50 border-y border-neutral-800/60 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-3">Featured Creative Spaces</h2>
+              <p className="text-neutral-400">Hand-picked top-rated studios ready for your next project.</p>
+            </div>
+            <Link href="/studios" className="mt-4 md:mt-0 text-amber-500 hover:text-amber-400 font-semibold flex items-center gap-2 text-sm">
+              View All Studios <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {featuredStudios.map((studio) => (
+              <div key={studio.id} className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden group hover:border-neutral-700 transition-all duration-300">
+                <div className="relative h-56 w-full overflow-hidden">
+                  <img src={studio.image} alt={studio.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <span className="absolute top-4 left-4 bg-neutral-950/80 backdrop-blur-md text-amber-400 text-xs font-semibold px-3 py-1 rounded-full border border-neutral-800">
+                    {studio.category}
+                  </span>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-neutral-400 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-amber-500" /> {studio.location}
+                    </span>
+                    <span className="text-xs font-semibold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> {studio.rating}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-4 group-hover:text-amber-400 transition-colors">{studio.title}</h3>
+                  <div className="flex items-center justify-between pt-4 border-t border-neutral-800">
+                    <div>
+                      <span className="text-2xl font-extrabold text-white">${studio.rate}</span>
+                      <span className="text-xs text-neutral-400"> / hr</span>
+                    </div>
+                    <Link href={`/studios/${studio.id}`} className="bg-neutral-800 hover:bg-amber-500 hover:text-black text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                      View Details
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
 
     </div>
