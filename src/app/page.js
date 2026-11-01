@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
@@ -10,6 +11,12 @@ import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
 export default function Home() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const categories = [
     { name: "Photo Studios", icon: Camera, count: "42 Spaces", image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&auto=format&fit=crop&q=80" },
     { name: "Sound Stages", icon: Video, count: "18 Spaces", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&auto=format&fit=crop&q=80" },
@@ -26,6 +33,10 @@ export default function Home() {
     { id: "5", title: "Canvas & Clay Workshop", category: "Art Workshops", rate: 90, rating: 4.7, location: "Chelsea Arts Loft", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80" },
     { id: "6", title: "Cinematic Light Loft", category: "Photo Studios", rate: 180, rating: 4.9, location: "Long Island City", image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&auto=format&fit=crop&q=80" },
   ];
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-950 text-neutral-100 w-full">
