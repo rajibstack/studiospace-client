@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
 import { Camera, Mail, Lock, User, Image as ImageIcon, ArrowRight } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,42 +20,103 @@ export default function RegisterPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     const { name, email, photoURL, password } = formData;
 
     if (!name || !email || !password) {
-      toast.error("Shobguli mandatory field puron korun!");
+      toast.error("Please fill in all mandatory fields!");
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password kam-poks 6 character er hote hobe!");
+      toast.error("Password must be at least 6 characters long!");
       return;
     }
 
     if (!/[A-Z]/.test(password)) {
-      toast.error("Password-e kam-poks ekti Uppercase letter thakte hobe!");
+      toast.error("Password must contain at least one uppercase letter!");
       return;
     }
 
     if (!/[a-z]/.test(password)) {
-      toast.error("Password-e kam-poks ekti Lowercase letter thakte hobe!");
+      toast.error("Password must contain at least one lowercase letter!");
       return;
     }
 
-    toast.success("Registration successful! Redirecting to login...");
-    setTimeout(() => {
-      router.push("/login");
-    }, 1500);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, photoURL, password }),
+      });
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server error or route not found. Please check backend server.");
+      }
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Registration failed!");
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      toast.success("Registration successful! Redirecting to login...");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    toast.success("Google authentication successful!");
-    setTimeout(() => {
-      router.push("/");
-    }, 1000);
-  };
+  // Google Login / Register Handler using useGoogleLogin hook
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // গুগল থেকে ইউজারের প্রোফাইল ইনফো ফেচ করা
+        const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const googleUser = await userInfoRes.json();
+
+        // ব্যাকএন্ডে টোকেন বা ইউজার ডাটা পাঠিয়ে আমাদের নিজস্ব JWT জেনারেট করে নেওয়া
+        const res = await fetch("http://localhost:5000/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            token: tokenResponse.access_token,
+            email: googleUser.email,
+            name: googleUser.name,
+            picture: googleUser.picture 
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Google authentication failed!");
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        toast.success("Google sign-up successful! Redirecting...");
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      } catch (error) {
+        toast.error(error.message || "Google authentication failed!");
+      }
+    },
+    onError: () => {
+      toast.error("Google Sign In Failed");
+    },
+  });
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-950 text-neutral-100 justify-center py-12 sm:px-6 lg:px-8">
@@ -166,8 +228,9 @@ export default function RegisterPage() {
 
             <div className="mt-6">
               <button
-                onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center gap-3 bg-neutral-950 border border-neutral-800 hover:border-neutral-700 rounded-xl py-2.5 text-sm font-medium text-white transition-colors"
+                type="button"
+                onClick={() => handleGoogleLogin()}
+                className="w-full flex items-center justify-center gap-3 bg-neutral-950 border border-neutral-800 hover:border-neutral-700 rounded-xl py-2.5 text-sm font-medium text-white transition-colors cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
