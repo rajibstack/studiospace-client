@@ -1,69 +1,122 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import { Camera, Mic, Music, Video, Palette, ShieldCheck, Clock, CheckCircle2, ArrowRight, Star, MapPin } from "lucide-react";
+
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/effect-fade";
 
 export default function Home() {
+  const categories = [
+    { name: "Photo Studios", icon: Camera, count: "42 Spaces", image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&auto=format&fit=crop&q=80" },
+    { name: "Sound Stages", icon: Video, count: "18 Spaces", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&auto=format&fit=crop&q=80" },
+    { name: "Podcast Rooms", icon: Mic, count: "29 Spaces", image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fit=crop&q=80" },
+    { name: "Music Suites", icon: Music, count: "35 Spaces", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80" },
+    { name: "Art Workshops", icon: Palette, count: "15 Spaces", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80" },
+  ];
+
+  const featuredStudios = [
+    { id: "1", title: "Cyc Wall Studio Prime", category: "Photo Studios", rate: 120, rating: 4.9, location: "Downtown Manhattan", image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&auto=format&fit=crop&q=80" },
+    { id: "2", title: "Echo Chamber Sound Stage", category: "Sound Stages", rate: 250, rating: 5.0, location: "Brooklyn Arts District", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&auto=format&fit=crop&q=80" },
+    { id: "3", title: "Aura Podcast Lounge", category: "Podcast Rooms", rate: 75, rating: 4.8, location: "SoHo Creative Hub", image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fit=crop&q=80" },
+    { id: "4", title: "Harmonic Beats Suite", category: "Music Suites", rate: 150, rating: 4.9, location: "Williamsburg", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80" },
+    { id: "5", title: "Canvas & Clay Workshop", category: "Art Workshops", rate: 90, rating: 4.7, location: "Chelsea Arts Loft", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80" },
+    { id: "6", title: "Cinematic Light Loft", category: "Photo Studios", rate: 180, rating: 4.9, location: "Long Island City", image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&auto=format&fit=crop&q=80" },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.js
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex flex-col min-h-screen bg-neutral-950 text-neutral-100 w-full">
+      
+      <section className="relative h-[85vh] w-full">
+        <Swiper
+          modules={[Autoplay, Pagination, EffectFade]}
+          effect={"fade"}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
+          className="h-full w-full"
+        >
+          <SwiperSlide className="relative">
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=1600&auto=format&fit=crop&q=80')` }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent"></div>
+            </div>
+            <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-start">
+              <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+                Premier P2P Creative Spaces
+              </span>
+              <h1 className="text-4xl sm:text-6xl font-extrabold text-white max-w-2xl tracking-tight leading-tight mb-4">
+                Discover World-Class <span className="text-amber-500">Production Spaces</span>
+              </h1>
+              <p className="text-lg text-neutral-300 max-w-xl mb-8">
+                Connect with creators, filmmakers, and podcasters. Reserve cyc walls, sound stages, and music suites instantly with transparent hourly pricing.
+              </p>
+              <div className="flex items-center gap-4">
+                <Link href="/studios" className="bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                  Explore Studios <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/add-studio" className="border border-neutral-700 hover:border-amber-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                  Host Your Space
+                </Link>
+              </div>
+            </div>
+          </SwiperSlide>
+
+          <SwiperSlide className="relative">
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1600&auto=format&fit=crop&q=80')` }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent"></div>
+            </div>
+            <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-start">
+              <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+                Acoustic Perfection
+              </span>
+              <h1 className="text-4xl sm:text-6xl font-extrabold text-white max-w-2xl tracking-tight leading-tight mb-4">
+                Record & Mix in Professional <span className="text-amber-500">Sound Stages</span>
+              </h1>
+              <p className="text-lg text-neutral-300 max-w-xl mb-8">
+                State-of-the-art recording suites and mixing stages designed for top-tier musicians, podcasters, and sound engineers.
+              </p>
+              <div className="flex items-center gap-4">
+                <Link href="/studios" className="bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                  Explore Studios <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/add-studio" className="border border-neutral-700 hover:border-amber-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                  Host Your Space
+                </Link>
+              </div>
+            </div>
+          </SwiperSlide>
+
+          <SwiperSlide className="relative">
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1600&auto=format&fit=crop&q=80')` }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent"></div>
+            </div>
+            <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-start">
+              <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+                Inspiring Atmosphere
+              </span>
+              <h1 className="text-4xl sm:text-6xl font-extrabold text-white max-w-2xl tracking-tight leading-tight mb-4">
+                Unleash Creativity in <span className="text-amber-500">Podcast Lounges</span>
+              </h1>
+              <p className="text-lg text-neutral-300 max-w-xl mb-8">
+                Fully equipped podcast and interview rooms featuring multi-cam setups, broadcast microphones, and cozy lounge aesthetics.
+              </p>
+              <div className="flex items-center gap-4">
+                <Link href="/studios" className="bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/20">
+                  Explore Studios <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link href="/add-studio" className="border border-neutral-700 hover:border-amber-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                  Host Your Space
+                </Link>
+              </div>
+            </div>
+          </SwiperSlide>
+        </Swiper>
+      </section>
+
+
+
     </div>
   );
 }
