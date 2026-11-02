@@ -3,18 +3,35 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [theme, setTheme] = useState("dark");
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+    if (savedTheme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
-    document.documentElement.classList.toggle("dark");
+    localStorage.setItem("theme", nextTheme);
+    
+    if (nextTheme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
   };
 
   const navLinks = [
@@ -84,7 +101,7 @@ export default function Navbar() {
               >
                 <img
                   src={user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
-                  alt={user.displayName || "User"}
+                  alt={user.name || "User"}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/50"
                 />
               </button>
@@ -92,36 +109,43 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl py-2 z-50 text-neutral-200">
                   <div className="px-4 py-2 border-b border-neutral-800">
-                    <p className="text-sm font-semibold text-white">{user.displayName || "Creator User"}</p>
+                    <p className="text-sm font-semibold text-white">{user.name || "Creator User"}</p>
                     <p className="text-xs text-neutral-400 truncate">{user.email}</p>
                   </div>
                   <Link
                     href="/dashboard"
+                    onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-neutral-800 transition-colors"
                   >
                     <LayoutDashboard className="w-4 h-4 text-amber-500" /> Dashboard
                   </Link>
                   <Link
                     href="/add-studio"
+                    onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-neutral-800 transition-colors"
                   >
                     <PlusCircle className="w-4 h-4 text-amber-500" /> Add New Studio
                   </Link>
                   <Link
                     href="/my-listings"
+                    onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-neutral-800 transition-colors"
                   >
                     <Building className="w-4 h-4 text-amber-500" /> My Studio Listings
                   </Link>
                   <Link
                     href="/my-bookings"
+                    onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-neutral-800 transition-colors"
                   >
                     <BookmarkCheck className="w-4 h-4 text-amber-500" /> My Bookings
                   </Link>
                   <div className="border-t border-neutral-800 my-1"></div>
                   <button
-                    onClick={() => setUser(null)}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      logout();
+                    }}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors"
                   >
                     <LogOut className="w-4 h-4" /> Logout
