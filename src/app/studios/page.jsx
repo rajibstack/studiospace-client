@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MapPin, DollarSign, ArrowRight } from "lucide-react";
 
-export default function ExploreStudiosPage() {
+function StudioListContent() {
   const [studios, setStudios] = useState([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -31,7 +31,6 @@ export default function ExploreStudiosPage() {
       });
   }, []);
 
-  // ক্যাটাগরি সিলেক্ট করা থাকলে সেটি দিয়ে ফিল্টার করা
   const filteredStudios = selectedCategory
     ? studios.filter((studio) => studio.category === selectedCategory)
     : studios;
@@ -108,5 +107,13 @@ export default function ExploreStudiosPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ExploreStudiosPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-20 text-neutral-400">Loading...</div>}>
+      <StudioListContent />
+    </Suspense>
   );
 }

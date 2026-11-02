@@ -30,7 +30,7 @@ export default function MyListingsPage() {
       if (!res.ok) {
         throw new Error(data.message || "Failed to fetch listings");
       }
-      setStudios(data);
+      setStudios(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -42,7 +42,13 @@ export default function MyListingsPage() {
     fetchMyStudios();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (studioId) => {
+    const id = studioId?._id || studioId; // ID অবজেক্ট হলে _id এক্সট্রাক্ট করা
+    if (!id) {
+      alert("Invalid Studio ID!");
+      return;
+    }
+
     if (!confirm("Are you sure you want to delete this studio listing?")) return;
 
     try {
@@ -59,7 +65,7 @@ export default function MyListingsPage() {
         throw new Error(data.message || "Failed to delete studio");
       }
 
-      setStudios(studios.filter((studio) => studio._id !== id));
+      setStudios(studios.filter((s) => (s._id?.toString() || s._id) !== id.toString()));
       alert("Studio deleted successfully!");
     } catch (err) {
       alert(err.message || "Failed to delete studio");
@@ -79,9 +85,15 @@ export default function MyListingsPage() {
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
+    const id = editingStudio?._id;
+    if (!id) {
+      alert("Studio ID not found for updating!");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/studios/${editingStudio._id}`, {
+      const res = await fetch(`http://localhost:5000/api/studios/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -131,51 +143,54 @@ export default function MyListingsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {studios.map((studio) => (
-              <div
-                key={studio._id}
-                className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col"
-              >
-                <div className="relative h-48 w-full">
-                  <img
-                    src={studio.image || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=500&auto=format&fit=crop&q=80"}
-                    alt={studio.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-3 right-3 bg-neutral-950/80 backdrop-blur-md text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-neutral-800 flex items-center gap-1">
-                    <DollarSign className="w-3 h-3" />
-                    {studio.price} / hr
-                  </div>
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{studio.title}</h3>
-                    <p className="text-xs text-neutral-400 flex items-center gap-1.5 mb-3">
-                      <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                      {studio.location}
-                    </p>
-                    <p className="text-sm text-neutral-400 line-clamp-2 mb-4">{studio.description}</p>
+            {studios.map((studio) => {
+              const studioId = studio._id;
+              return (
+                <div
+                  key={studioId}
+                  className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col"
+                >
+                  <div className="relative h-48 w-full">
+                    <img
+                      src={studio.image || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=500&auto=format&fit=crop&q=80"}
+                      alt={studio.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 right-3 bg-neutral-950/80 backdrop-blur-md text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-neutral-800 flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" />
+                      {studio.price} / hr
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-3 border-t border-neutral-800">
-                    <button
-                      onClick={() => openEditModal(studio)}
-                      className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-sm font-medium rounded-xl transition-colors cursor-pointer"
-                    >
-                      <Edit3 className="w-4 h-4 text-amber-500" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(studio._id)}
-                      className="flex items-center justify-center p-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl transition-colors cursor-pointer"
-                      title="Delete Listing"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{studio.title}</h3>
+                      <p className="text-xs text-neutral-400 flex items-center gap-1.5 mb-3">
+                        <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                        {studio.location}
+                      </p>
+                      <p className="text-sm text-neutral-400 line-clamp-2 mb-4">{studio.description}</p>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-3 border-t border-neutral-800">
+                      <button
+                        onClick={() => openEditModal(studio)}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-sm font-medium rounded-xl transition-colors cursor-pointer"
+                      >
+                        <Edit3 className="w-4 h-4 text-amber-500" /> Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(studioId)}
+                        className="flex items-center justify-center p-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl transition-colors cursor-pointer"
+                        title="Delete Listing"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

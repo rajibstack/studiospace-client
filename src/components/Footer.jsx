@@ -2,8 +2,38 @@
 
 import Link from "next/link";
 import { Camera } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
+  const [categories, setCategories] = useState([
+    { name: "Photo Studios" },
+    { name: "Sound Stages" },
+    { name: "Podcast Rooms" },
+    { name: "Music Suites" },
+    { name: "Art Workshops" },
+  ]);
+
+  useEffect(() => {
+    // ব্যাকএন্ড থেকে স্টুডিও ডাটা এনে ইউনিক ক্যাটাগরিগুলো ডাইনামিকভাবে লোড করার জন্য
+    fetch("http://localhost:5000/api/studios")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          // ডুপ্লিকেট ক্যাটাগরি বাদ দিয়ে ইউনিক ক্যাটাগরি ফিল্টার করা
+          const uniqueCategories = [...new Set(data.map((studio) => studio.category))]
+            .filter(Boolean)
+            .map((cat) => ({ name: cat }));
+
+          if (uniqueCategories.length > 0) {
+            setCategories(uniqueCategories);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch categories for footer:", err);
+      });
+  }, []);
+
   return (
     <footer className="bg-neutral-950 border-t border-neutral-800 text-neutral-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -33,11 +63,16 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-4 text-sm tracking-wider uppercase">Popular Categories</h3>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/studios?category=Photo Studios" className="hover:text-amber-400 transition-colors">Photo Studios</Link></li>
-            <li><Link href="/studios?category=Sound Stages" className="hover:text-amber-400 transition-colors">Sound Stages</Link></li>
-            <li><Link href="/studios?category=Podcast Rooms" className="hover:text-amber-400 transition-colors">Podcast Rooms</Link></li>
-            <li><Link href="/studios?category=Music Suites" className="hover:text-amber-400 transition-colors">Music Suites</Link></li>
-            <li><Link href="/studios?category=Art Workshops" className="hover:text-amber-400 transition-colors">Art Workshops</Link></li>
+            {categories.map((cat) => (
+              <li key={cat.name}>
+                <Link
+                  href={`/studios?category=${encodeURIComponent(cat.name)}`}
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
