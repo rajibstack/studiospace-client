@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck, User } from "lucide-react";
+import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck, User, Menu, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -9,6 +9,7 @@ export default function Navbar() {
   const [theme, setTheme] = useState("dark");
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -23,7 +24,6 @@ export default function Navbar() {
     }
   }, []);
 
-  // Outside click detection to close dropdown
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -83,14 +83,14 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg border border-neutral-800 text-neutral-300 hover:bg-neutral-900 transition-colors"
+            className="p-2 rounded-lg border border-neutral-800 text-neutral-300 hover:bg-neutral-900 transition-colors cursor-pointer"
             aria-label="Toggle Theme"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
 
           {!user ? (
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <Link
                 href="/login"
                 className="text-sm font-medium text-neutral-300 hover:text-white px-3 py-2 transition-colors"
@@ -105,7 +105,7 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative hidden md:block" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 focus:outline-none cursor-pointer"
@@ -174,8 +174,113 @@ export default function Navbar() {
               )}
             </div>
           )}
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg border border-neutral-800 text-neutral-300 hover:bg-neutral-900 transition-colors cursor-pointer"
+            aria-label="Toggle Mobile Menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-neutral-900 border-b border-neutral-800 shadow-2xl py-4 px-6 z-50 text-neutral-200 flex flex-col gap-2">
+          {user && (
+            <div className="flex items-center gap-3 pb-3 border-b border-neutral-800 mb-2">
+              <img
+                src={user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
+                alt={user.name || "User"}
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-amber-500/50"
+              />
+              <div>
+                <p className="text-sm font-semibold text-white">{user.name || "Creator User"}</p>
+                <p className="text-xs text-neutral-400 truncate">{user.email}</p>
+              </div>
+            </div>
+          )}
+
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium py-2 px-3 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-300 hover:text-white"
+            >
+              {link.name}
+            </Link>
+          ))}
+
+          <div className="border-t border-neutral-800 my-2"></div>
+
+          {user ? (
+            <>
+              <Link
+                href="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 py-2 px-3 text-sm hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <User className="w-4 h-4 text-amber-500" /> Profile Settings
+              </Link>
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 py-2 px-3 text-sm hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4 text-amber-500" /> Dashboard
+              </Link>
+              <Link
+                href="/add-studio"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 py-2 px-3 text-sm hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <PlusCircle className="w-4 h-4 text-amber-500" /> Add New Studio
+              </Link>
+              <Link
+                href="/my-listings"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 py-2 px-3 text-sm hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <Building className="w-4 h-4 text-amber-500" /> My Studio Listings
+              </Link>
+              <Link
+                href="/my-bookings"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 py-2 px-3 text-sm hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <BookmarkCheck className="w-4 h-4 text-amber-500" /> My Bookings
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  logout();
+                }}
+                className="w-full flex items-center gap-2 py-2 px-3 text-sm text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors mt-2 cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" /> Logout
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col gap-2 pt-2">
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2.5 text-sm font-medium text-neutral-300 border border-neutral-800 rounded-xl hover:bg-neutral-800 transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2.5 text-sm font-semibold text-black bg-amber-500 hover:bg-amber-400 rounded-xl transition-colors shadow-lg shadow-amber-500/10"
+              >
+                Register
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }
