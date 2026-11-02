@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "@/context/AuthContext";
-import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +30,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col bg-neutral-950 text-neutral-100" suppressHydrationWarning>
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
           <AuthProvider>
-            <Suspense fallback={null}>
-              <Navbar />
-            </Suspense>
+            <Navbar />
             <main className="flex-grow">{children}</main>
             <Footer />
           </AuthProvider>

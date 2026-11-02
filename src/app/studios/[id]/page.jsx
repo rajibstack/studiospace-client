@@ -6,7 +6,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Calendar, Clock, MapPin, DollarSign, CheckCircle2 } from "lucide-react";
 
 function StudioDetailsContent() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id;
   const router = useRouter();
   const { user, token } = useAuth();
 
@@ -20,8 +21,13 @@ function StudioDetailsContent() {
 
   useEffect(() => {
     if (!id) return;
+    
+    setLoading(true);
     fetch(`http://localhost:5000/api/studios/${id}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load studio details");
+        return res.json();
+      })
       .then((data) => {
         setStudio(data);
         setLoading(false);
@@ -86,6 +92,9 @@ function StudioDetailsContent() {
     return <div className="text-center py-20 text-rose-500">Studio not found!</div>;
   }
 
+  // ব্যাকএন্ড থেকে image বা coverImage না থাকলে ক্যাশ সমস্যা এড়াতে ডায়নামিক ছবি দেখানো
+  const studioImage = studio.image || studio.coverImage || `https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&auto=format&fit=crop&q=80`;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -93,8 +102,8 @@ function StudioDetailsContent() {
         {/* Studio Image & Info */}
         <div>
           <img
-            src={studio.image || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&auto=format&fit=crop&q=80"}
-            alt={studio.name}
+            src={studioImage}
+            alt={studio.name || "Studio Image"}
             className="w-full h-96 object-cover rounded-2xl shadow-lg border border-neutral-800"
           />
           <h1 className="text-3xl font-bold text-white mt-6">{studio.name}</h1>

@@ -1,18 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const pathname = usePathname();
   const [theme, setTheme] = useState("dark");
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const savedTheme = localStorage.getItem("theme") || "dark";
     setTheme(savedTheme);
     if (savedTheme === "light") {
@@ -41,6 +41,10 @@ export default function Navbar() {
     { name: "About Us", href: "/#about-us" },
   ];
 
+  if (!mounted) {
+    return <header className="sticky top-0 z-50 w-full h-16 bg-neutral-950/80 border-b border-neutral-800" />;
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -53,20 +57,15 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-amber-400 ${
-                  isActive ? "text-amber-500 font-semibold" : "text-neutral-400"
-                }`}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              className="text-sm font-medium transition-colors hover:text-amber-400 text-neutral-400"
+            >
+              {link.name}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-4">
