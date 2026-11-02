@@ -1,27 +1,37 @@
 "use client";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 
 export default function MyBookingsPage() {
+  const { user, loading: authLoading } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBookings();
-  }, []);
+    if (!authLoading && user) {
+      fetchBookings();
+    } else if (!authLoading && !user) {
+      setLoading(false);
+    }
+  }, [user, authLoading]);
 
   const fetchBookings = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/bookings/my-bookings", {
         credentials: "include"
       });
-      const data = await res.json();
-      if (res.ok) {
-        setBookings(data.bookings || []);
+      
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (res.ok) {
+          setBookings(data.bookings || []);
+        }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to parse or fetch bookings:", err);
     } finally {
       setLoading(false);
     }
