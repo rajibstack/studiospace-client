@@ -10,6 +10,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 import FeaturedStudios from "@/components/FeaturedStudios";
+import StudioCategories from "@/components/StudioCategories";
 
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
@@ -127,31 +128,13 @@ export default function Home() {
         </Swiper>
       </section>
 
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-3">Browse by Studio Categories</h2>
-          <p className="text-neutral-400">Find the ideal space tailored for your specific creative production needs.</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-          {categories.map((cat) => (
-            <Link
-              key={cat.name}
-              href={`/studios?category=${cat.name}`}
-              className="group relative bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden p-6 flex flex-col items-center text-center hover:border-amber-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/5"
-            >
-              <div className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:scale-110 transition-transform duration-500" style={{ backgroundImage: `url(${cat.image})` }}></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/80 to-transparent"></div>
-              <div className="relative z-10 p-3 bg-amber-500/10 text-amber-400 rounded-xl mb-4 group-hover:bg-amber-500 group-hover:text-black transition-colors">
-                <cat.icon className="w-6 h-6" />
-              </div>
-              <h3 className="relative z-10 text-white font-semibold mb-1">{cat.name}</h3>
-              <p className="relative z-10 text-xs text-neutral-400">{cat.count}</p>
-            </Link>
-          ))}
-        </div>
+      <section className="py-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <StudioCategories />
       </section>
 
-      <FeaturedStudios />
+      <section className="py-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <FeaturedStudios />
+      </section>
 
       <section id="how-it-works" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="text-center mb-16">
