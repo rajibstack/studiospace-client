@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
@@ -10,6 +10,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -20,6 +21,17 @@ export default function Navbar() {
     } else {
       document.documentElement.classList.add("dark");
     }
+  }, []);
+
+  // Outside click detection to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleTheme = () => {
@@ -93,10 +105,10 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 focus:outline-none"
+                className="flex items-center gap-2 focus:outline-none cursor-pointer"
               >
                 <img
                   src={user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
@@ -111,6 +123,15 @@ export default function Navbar() {
                     <p className="text-sm font-semibold text-white">{user.name || "Creator User"}</p>
                     <p className="text-xs text-neutral-400 truncate">{user.email}</p>
                   </div>
+                  
+                  <Link
+                    href="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-neutral-800 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-amber-500" /> Profile Settings
+                  </Link>
+
                   <Link
                     href="/dashboard"
                     onClick={() => setDropdownOpen(false)}
@@ -145,7 +166,7 @@ export default function Navbar() {
                       setDropdownOpen(false);
                       logout();
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" /> Logout
                   </button>

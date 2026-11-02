@@ -3,43 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { PlusCircle, Building, MapPin, DollarSign, Image as ImageIcon, FileText, CheckCircle2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 
 export default function AddStudioPage() {
   const router = useRouter();
-  const { token, user } = useAuth();
+  const { token } = useAuth();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    location: "",
-    pricePerHour: "",
-    image: "",
-    description: "",
-  });
-
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [pricePerHour, setPricePerHour] = useState("");
+  const [image, setImage] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
-
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
-    if (!formData.name || !formData.location || !formData.pricePerHour || !formData.description) {
-      setError("Please fill in all required fields.");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -49,19 +29,27 @@ export default function AddStudioPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name,
+          location,
+          pricePerHour: Number(pricePerHour),
+          image,
+          description,
+        }),
       });
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned an invalid response. Check backend API URL.");
+      }
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to add studio.");
+        throw new Error(data.message || "Failed to add studio listing.");
       }
 
-      setSuccess("Studio added successfully!");
-      setTimeout(() => {
-        router.push("/studios");
-      }, 1500);
+      router.push("/studios");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -70,94 +58,84 @@ export default function AddStudioPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-3xl mx-auto px-4 py-10">
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <PlusCircle className="w-6 h-6 text-amber-500" /> Add New Studio Listing
-          </h1>
-          <p className="text-neutral-400 text-sm mt-1">List your creative space or recording suite for creators to book.</p>
+        <div className="mb-6 flex items-center gap-3">
+          <div className="p-3 bg-amber-500/10 rounded-xl text-amber-500">
+            <PlusCircle className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">Add New Studio Listing</h1>
+            <p className="text-sm text-neutral-400">List your creative space or recording suite for creators to book.</p>
+          </div>
         </div>
 
-        {error && <div className="mb-6 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl text-sm">{error}</div>}
-        {success && <div className="mb-6 p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl text-sm flex items-center gap-2"><CheckCircle2 className="w-4 h-4" />{success}</div>}
+        {error && (
+          <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-2">Studio Name</label>
-            <div className="relative">
-              <Building className="absolute left-3.5 top-3 w-4 h-4 text-neutral-500" />
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Studio Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+              placeholder="e.g., Apex Sound Lab"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-1">Location</label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g. Apex Sound Lab"
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-amber-500 text-sm"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                placeholder="e.g., Dhanmondi, Dhaka"
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">Location</label>
-              <div className="relative">
-                <MapPin className="absolute left-3.5 top-3 w-4 h-4 text-neutral-500" />
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="e.g. Dhanmondi, Dhaka"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-amber-500 text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">Price Per Hour ($)</label>
-              <div className="relative">
-                <DollarSign className="absolute left-3.5 top-3 w-4 h-4 text-neutral-500" />
-                <input
-                  type="number"
-                  name="pricePerHour"
-                  value={formData.pricePerHour}
-                  onChange={handleChange}
-                  placeholder="e.g. 45"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-amber-500 text-sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-2">Image URL</label>
-            <div className="relative">
-              <ImageIcon className="absolute left-3.5 top-3 w-4 h-4 text-neutral-500" />
+              <label className="block text-sm font-medium text-neutral-300 mb-1">Price Per Hour ($)</label>
               <input
-                type="url"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-amber-500 text-sm"
+                type="number"
+                value={pricePerHour}
+                onChange={(e) => setPricePerHour(e.target.value)}
+                required
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                placeholder="e.g., 50"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-2">Description</label>
-            <div className="relative">
-              <FileText className="absolute left-3.5 top-3 w-4 h-4 text-neutral-500" />
-              <textarea
-                name="description"
-                rows="4"
-                value={formData.description}
-                onChange={handleChange}
-                placeholder="Describe your studio facilities, equipment, and environment..."
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-amber-500 text-sm resize-none"
-              ></textarea>
-            </div>
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Image URL</label>
+            <input
+              type="url"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              required
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+              placeholder="https://images.unsplash.com/..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-300 mb-1">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              rows={4}
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+              placeholder="Describe your studio equipment, acoustics, and environment..."
+            />
           </div>
 
           <button
@@ -165,7 +143,7 @@ export default function AddStudioPage() {
             disabled={loading}
             className="w-full bg-amber-500 hover:bg-amber-400 text-black font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-amber-500/10 disabled:opacity-50"
           >
-            {loading ? "Publishing Studio..." : "Publish Studio"}
+            {loading ? "Publishing Listing..." : "Publish Studio Listing"}
           </button>
         </form>
       </div>

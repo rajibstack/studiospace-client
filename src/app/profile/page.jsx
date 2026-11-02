@@ -6,54 +6,40 @@ import { useState } from "react";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
-  const [name, setName] = useState(user?.displayName || user?.name || "");
-  const [file, setFile] = useState(null);
+  const [name, setName] = useState(user?.name || "");
+  const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
-
-    if (selectedFile.size > 1024 * 1024) {
-      setError("File size must be less than 1MB");
-      setFile(null);
-      return;
-    }
-
-    setError("");
-    setFile(selectedFile);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (error) return;
-
     setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("name", name);
-      if (file) {
-        formData.append("photo", file);
-      }
+    setError("");
 
-      const res = await fetch("http://localhost:5000/api/users/profile", {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:5000/api/auth/profile", {
         method: "PUT",
-        credentials: "include",
-        body: formData
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, photoURL }),
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setUser(data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        alert("Profile updated successfully!");
-      } else {
-        setError(data.message || "Failed to update profile");
+      
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update profile");
       }
+
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      alert("Profile updated successfully!");
     } catch (err) {
       console.error(err);
-      setError("Server connection error");
+      setError(err.message || "Server connection error");
     } finally {
       setLoading(false);
     }
@@ -87,13 +73,14 @@ export default function ProfilePage() {
 
             <div>
               <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Profile Photo (Max 1MB)
+                Profile Photo URL
               </label>
               <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="w-full text-sm text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-neutral-800 file:text-neutral-200 hover:file:bg-neutral-700"
+                type="text"
+                value={photoURL}
+                onChange={(e) => setPhotoURL(e.target.value)}
+                placeholder="https://example.com/photo.jpg"
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500"
               />
             </div>
 

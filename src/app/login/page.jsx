@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
 import { Camera, Mail, Lock, ArrowRight } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -43,26 +41,23 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      toast.success("Login successful! Redirecting to home...");
+      toast.success("Login successful! Redirecting...");
       setTimeout(() => {
-        router.push("/");
-      }, 1500);
+        window.location.href = "/";
+      }, 1000);
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  // Google Login Handler using useGoogleLogin hook
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        // গুগল থেকে ইউজারের প্রোফাইল ইনফো ফেচ করা
         const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
         const googleUser = await userInfoRes.json();
 
-        // ব্যাকএন্ডে টোকেন বা ইউজার ডাটা পাঠিয়ে JWT জেনারেট করে নেওয়া
         const res = await fetch("http://localhost:5000/api/auth/google", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -85,8 +80,8 @@ export default function LoginPage() {
 
         toast.success("Google login successful! Redirecting...");
         setTimeout(() => {
-          router.push("/");
-        }, 1500);
+          window.location.href = "/";
+        }, 1000);
       } catch (error) {
         toast.error(error.message || "Google authentication failed!");
       }
