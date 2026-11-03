@@ -39,8 +39,6 @@ export default function AddStudioPage() {
     setLoading(true);
 
     try {
-      // টোকেন লোকালস্টোরেজে চেক করার প্রয়োজন নেই, কারণ কুকি ব্রাউজার স্বয়ংক্রিয়ভাবে পাঠাবে।
-      // তবে ইউজার লগইন করা না থাকলে বা ইউজার স্টেট মিসিং থাকলে চেক করতে পারেন:
       if (!user) {
         toast.error("Please login first!");
         window.location.href = "/login";
@@ -66,10 +64,9 @@ export default function AddStudioPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization হেডার বাদ দেওয়া হয়েছে, কারণ কুকি ব্যবহার করা হচ্ছে
         },
         body: JSON.stringify(studioPayload),
-        credentials: "include", // <-- কুকি ব্যাকএন্ডে পাঠানোর জন্য এটি অত্যন্ত জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();

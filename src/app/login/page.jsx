@@ -32,7 +32,7 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // <-- এটি যুক্ত করা হয়েছে (কুকি রিসিভ করার জন্য জরুরি)
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -41,7 +41,6 @@ export default function LoginPage() {
         throw new Error(data.message || "Login failed!");
       }
 
-      // টোকেন কুকিতে সেভ হচ্ছে, তবে চাইলে ইউজার ইনফো লোকালস্টোরেজে রাখতে পারেন
       localStorage.setItem("user", JSON.stringify(data.user));
 
       toast.success("Login successful! Redirecting...");
@@ -70,7 +69,7 @@ export default function LoginPage() {
             name: googleUser.name,
             picture: googleUser.picture,
           }),
-          credentials: "include", // <-- এখানেও যুক্ত করা হয়েছে
+          credentials: "include",
         });
 
         const data = await res.json();

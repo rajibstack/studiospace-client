@@ -19,16 +19,13 @@ export default function ProfilePage() {
     setError("");
 
     try {
-      // লোকালস্টোরেজ থেকে টোকেন নেওয়ার বা হেডার পাঠানোর প্রয়োজন নেই, 
-      // কারণ HTTPOnly কুকি ব্রাউজার স্বয়ংক্রিয়ভাবে পাঠাবে।
-
       const res = await fetch(`${API_URL}/api/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, photoURL }),
-        credentials: "include", // <-- কুকি ব্যাকএন্ডে পাঠানোর জন্য এটি অত্যন্ত জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();

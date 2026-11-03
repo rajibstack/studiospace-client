@@ -3,11 +3,21 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle, MapPin, FolderSearch, ArrowRight } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Trash2,
+  CheckCircle2,
+  Clock3,
+  XCircle,
+  AlertCircle,
+  MapPin,
+  FolderSearch,
+  ArrowRight,
+} from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-// 🎨 Built-in Skeleton Card & Grid Component
 function SkeletonCard() {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl animate-pulse flex flex-col justify-between space-y-4">
@@ -38,7 +48,7 @@ function SkeletonGrid() {
   );
 }
 
-// 🌟 Friendly Empty State Component
+
 function EmptyState({
   title = "No bookings found",
   description = "You haven't scheduled any studio sessions yet. Explore our professional creative spaces and book your first session today.",
@@ -82,9 +92,9 @@ export default function MyBookingsPage() {
       return;
     }
 
-    // Authorization হেডার বাদ দেওয়া হয়েছে, কারণ কুকি স্বয়ংক্রিয়ভাবে পাস হবে
+
     fetch(`${API_URL}/api/bookings/my-bookings?email=${user.email}`, {
-      credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch bookings");
@@ -117,7 +127,7 @@ export default function MyBookingsPage() {
     try {
       const res = await fetch(`${API_URL}/api/bookings/${id}`, {
         method: "PATCH",
-        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -127,7 +137,7 @@ export default function MyBookingsPage() {
       }
 
       setBookings(
-        bookings.map((b) => (b._id === id ? { ...b, status: "Cancelled" } : b))
+        bookings.map((b) => (b._id === id ? { ...b, status: "Cancelled" } : b)),
       );
       toast.success("Booking cancelled successfully!");
     } catch (err) {
@@ -139,15 +149,35 @@ export default function MyBookingsPage() {
   const getStatusBadge = (status) => {
     switch (status) {
       case "Pending":
-        return { bg: "bg-amber-500/10 border-amber-500/20 text-amber-400", icon: Clock3, label: "Pending" };
+        return {
+          bg: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+          icon: Clock3,
+          label: "Pending",
+        };
       case "Confirmed":
-        return { bg: "bg-blue-500/10 border-blue-500/20 text-blue-400", icon: CheckCircle2, label: "Confirmed" };
+        return {
+          bg: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+          icon: CheckCircle2,
+          label: "Confirmed",
+        };
       case "Completed":
-        return { bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", icon: CheckCircle2, label: "Completed" };
+        return {
+          bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+          icon: CheckCircle2,
+          label: "Completed",
+        };
       case "Cancelled":
-        return { bg: "bg-rose-500/10 border-rose-500/20 text-rose-400", icon: XCircle, label: "Cancelled" };
+        return {
+          bg: "bg-rose-500/10 border-rose-500/20 text-rose-400",
+          icon: XCircle,
+          label: "Cancelled",
+        };
       default:
-        return { bg: "bg-neutral-800 border-neutral-700 text-neutral-400", icon: AlertCircle, label: status || "Pending" };
+        return {
+          bg: "bg-neutral-800 border-neutral-700 text-neutral-400",
+          icon: AlertCircle,
+          label: status || "Pending",
+        };
     }
   };
 
@@ -155,8 +185,10 @@ export default function MyBookingsPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">My Bookings</h1>
-          <p className="text-neutral-400 mt-2">Manage your scheduled studio sessions and active reservations.</p>
+          <h1 className="text-3xl font-bold text-amber-500">My Bookings</h1>
+          <p className="text-neutral-400 mt-2">
+            Manage your scheduled studio sessions and active reservations.
+          </p>
         </div>
         <SkeletonGrid />
       </div>
@@ -164,17 +196,27 @@ export default function MyBookingsPage() {
   }
 
   if (!user) {
-    return <div className="text-center py-20 text-neutral-400">Please login to view your bookings.</div>;
+    return (
+      <div className="text-center py-20 text-neutral-400">
+        Please login to view your bookings.
+      </div>
+    );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">My Bookings</h1>
-        <p className="text-neutral-400 mt-2">Manage your scheduled studio sessions and active reservations.</p>
+        <h1 className="text-3xl font-bold text-amber-500">My Bookings</h1>
+        <p className="text-neutral-400 mt-2">
+          Manage your scheduled studio sessions and active reservations.
+        </p>
       </div>
 
-      {error && <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl">{error}</div>}
+      {error && (
+        <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl">
+          {error}
+        </div>
+      )}
 
       {bookings.length === 0 ? (
         <EmptyState
@@ -191,7 +233,10 @@ export default function MyBookingsPage() {
             const BadgeIcon = badge.icon;
 
             return (
-              <div key={booking._id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+              <div
+                key={booking._id}
+                className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between"
+              >
                 <div>
                   {booking.studioImage && (
                     <img
@@ -201,26 +246,37 @@ export default function MyBookingsPage() {
                     />
                   )}
                   <div className="flex items-center justify-between mb-4">
-                    <span className={`px-3 py-1 border text-xs font-semibold rounded-full flex items-center gap-1 ${badge.bg}`}>
+                    <span
+                      className={`px-3 py-1 border text-xs font-semibold rounded-full flex items-center gap-1 ${badge.bg}`}
+                    >
                       <BadgeIcon className="w-3 h-3" /> {badge.label}
                     </span>
-                    <span className="text-sm font-bold text-amber-500">${booking.totalPrice || booking.totalAmount}</span>
+                    <span className="text-sm font-bold text-amber-500">
+                      ${booking.totalPrice || booking.totalAmount}
+                    </span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white mb-2">{booking.studio?.name || booking.studioTitle || "Studio Session"}</h3>
-                  
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    {booking.studio?.name ||
+                      booking.studioTitle ||
+                      "Studio Session"}
+                  </h3>
+
                   {booking.location && (
                     <p className="text-neutral-400 text-sm flex items-center gap-1.5 mb-3">
-                      <MapPin className="w-4 h-4 text-amber-500" /> {booking.location}
+                      <MapPin className="w-4 h-4 text-amber-500" />{" "}
+                      {booking.location}
                     </p>
                   )}
 
                   <div className="space-y-2 mt-4 text-sm text-neutral-300 border-t border-neutral-800 pt-3">
                     <p className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-amber-500" /> Date: {booking.date}
+                      <Calendar className="w-4 h-4 text-amber-500" /> Date:{" "}
+                      {booking.date}
                     </p>
                     <p className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-amber-500" /> Hours Needed: {booking.hours || 1} hrs
+                      <Clock className="w-4 h-4 text-amber-500" /> Hours Needed:{" "}
+                      {booking.hours || 1} hrs
                     </p>
                   </div>
                 </div>

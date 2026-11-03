@@ -21,9 +21,8 @@ export default function MyListingsPage() {
 
   const fetchMyStudios = async () => {
     try {
-      // টোকেন বা হেডার পাঠানোর প্রয়োজন নেই, কুকি স্বয়ংক্রিয়ভাবে পাস হবে
       const res = await fetch(`${API_URL}/api/studios/my-listings`, {
-        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -43,7 +42,7 @@ export default function MyListingsPage() {
   }, []);
 
   const handleDelete = async (studioId) => {
-    const id = studioId?._id || studioId; // ID অবজেক্ট হলে _id এক্সট্রাক্ট করা
+    const id = studioId?._id || studioId;
     if (!id) {
       alert("Invalid Studio ID!");
       return;
@@ -54,7 +53,7 @@ export default function MyListingsPage() {
     try {
       const res = await fetch(`${API_URL}/api/studios/${id}`, {
         method: "DELETE",
-        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -93,10 +92,9 @@ export default function MyListingsPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          // Authorization হেডার বাদ দেওয়া হয়েছে
         },
         body: JSON.stringify(editFormData),
-        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -117,7 +115,7 @@ export default function MyListingsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">My Studio Listings</h1>
+            <h1 className="text-3xl font-bold text-amber-500">My Studio Listings</h1>
             <p className="text-sm text-neutral-400 mt-1">Manage and update your published creative studios.</p>
           </div>
         </div>

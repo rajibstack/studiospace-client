@@ -51,7 +51,7 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, photoURL, password }),
-        credentials: "include", // <-- এটি অবশ্যই থাকতে হবে কুকি রিসিভ করার জন্য
+        credentials: "include",
       });
 
       const contentType = res.headers.get("content-type");
@@ -65,19 +65,19 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed!");
       }
 
-      // টোকেন কুকিতে সেভ হয়েছে, ইউজার ইনফো লোকালস্টোরেজে রাখতে পারেন
+
       localStorage.setItem("user", JSON.stringify(data.user));
 
       toast.success("Registration successful! Redirecting...");
       setTimeout(() => {
-        router.push("/"); // চাইলে সরাসরি হোমপেজে রিডাইরেক্ট করতে পারেন
+        router.push("/");
       }, 1500);
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  // Google Login / Register Handler using useGoogleLogin hook
+
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -95,7 +95,7 @@ export default function RegisterPage() {
             name: googleUser.name,
             picture: googleUser.picture 
           }),
-          credentials: "include", // <-- এখানেও যুক্ত করা হয়েছে
+          credentials: "include",
         });
 
         const data = await res.json();

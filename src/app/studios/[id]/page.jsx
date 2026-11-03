@@ -136,10 +136,9 @@ function StudioDetailContent() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authorization হেডার বাদ দেওয়া হয়েছে, কারণ কুকি ব্যবহার করা হচ্ছে
         },
         body: JSON.stringify(bookingData),
-        credentials: "include", // <-- কুকি ব্যাকএন্ডে পাঠানোর জন্য এটি অত্যন্ত জরুরি
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -187,7 +186,7 @@ function StudioDetailContent() {
         <span className="text-xs font-semibold text-amber-500 uppercase px-3 py-1 bg-neutral-900 border border-neutral-800 rounded-full">
           {studio.category || "Studio"}
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold mt-3 mb-2">
+        <h1 className="text-3xl sm:text-4xl font-bold mt-3 mb-2 text-amber-500">
           {studio.title || studio.name}
         </h1>
         <p className="flex items-center gap-2 text-neutral-400 text-sm">

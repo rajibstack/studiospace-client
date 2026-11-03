@@ -14,7 +14,6 @@ export default function Footer() {
   ]);
 
   useEffect(() => {
-    // এনভায়রনমেন্ট ভেরিয়েবল থেকে API URL ডাইনামিক করা হলো
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
     fetch(`${apiUrl}/api/studios`)
@@ -26,7 +25,6 @@ export default function Footer() {
       })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          // ডুপ্লিকেট ক্যাটাগরি বাদ দিয়ে ইউনিক ক্যাটাগরি ফিল্টার করা
           const uniqueCategories = [...new Set(data.map((studio) => studio.category))]
             .filter(Boolean)
             .map((cat) => ({ name: cat }));
