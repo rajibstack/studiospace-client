@@ -13,7 +13,6 @@ export default function FeaturedStudios() {
     fetch(`${apiUrl}/api/studios/featured`)
       .then((res) => res.json())
       .then((data) => {
-        // ডেটা যদি সরাসরি অ্যারে না হয়ে অবজেক্টের ভেতর থাকে, তবে ডেটা প্রপার্টি অনুযায়ী সেট করুন
         if (Array.isArray(data)) {
           setStudios(data);
         } else if (data.success && Array.isArray(data.data)) {
@@ -34,13 +33,12 @@ export default function FeaturedStudios() {
     return <div className="text-center py-16 text-neutral-400">Loading featured studios...</div>;
   }
 
-  // যদি studios অ্যারে না হয় বা খালি থাকে, তবে ক্র্যাশ না করে নিরাপদে রিটার্ন করবে
   if (!Array.isArray(studios) || studios.length === 0) {
     return null;
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-3xl font-bold text-white mb-2">Featured Studios</h2>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
-import { Camera, Mic, Music, Video, Palette, ShieldCheck, Clock, CheckCircle2, ArrowRight, Star, MapPin } from "lucide-react";
+import { Camera, Mic, Music, Video, Palette, ArrowRight } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -21,23 +21,6 @@ export default function Home() {
     setIsMounted(true);
   }, []);
 
-  const categories = [
-    { name: "Photo Studios", icon: Camera, count: "42 Spaces", image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&auto=format&fit=crop&q=80" },
-    { name: "Sound Stages", icon: Video, count: "18 Spaces", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&auto=format&fit=crop&q=80" },
-    { name: "Podcast Rooms", icon: Mic, count: "29 Spaces", image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fit=crop&q=80" },
-    { name: "Music Suites", icon: Music, count: "35 Spaces", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80" },
-    { name: "Art Workshops", icon: Palette, count: "15 Spaces", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80" },
-  ];
-
-  const featuredStudios = [
-    { id: "1", title: "Cyc Wall Studio Prime", category: "Photo Studios", rate: 120, rating: 4.9, location: "Downtown Manhattan", image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&auto=format&fit=crop&q=80" },
-    { id: "2", title: "Echo Chamber Sound Stage", category: "Sound Stages", rate: 250, rating: 5.0, location: "Brooklyn Arts District", image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&auto=format&fit=crop&q=80" },
-    { id: "3", title: "Aura Podcast Lounge", category: "Podcast Rooms", rate: 75, rating: 4.8, location: "SoHo Creative Hub", image: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fit=crop&q=80" },
-    { id: "4", title: "Harmonic Beats Suite", category: "Music Suites", rate: 150, rating: 4.9, location: "Williamsburg", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80" },
-    { id: "5", title: "Canvas & Clay Workshop", category: "Art Workshops", rate: 90, rating: 4.7, location: "Chelsea Arts Loft", image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80" },
-    { id: "6", title: "Cinematic Light Loft", category: "Photo Studios", rate: 180, rating: 4.9, location: "Long Island City", image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&auto=format&fit=crop&q=80" },
-  ];
-
   if (!isMounted) {
     return null;
   }
@@ -45,7 +28,8 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-950 text-neutral-100 w-full">
       
-      <section className="relative h-[85vh] w-full">
+      {/* Hero Slider Section */}
+      <section className="relative h-[85vh] w-full overflow-hidden">
         <Swiper
           modules={[Autoplay, Pagination, EffectFade]}
           effect={"fade"}
@@ -130,6 +114,7 @@ export default function Home() {
         </Swiper>
       </section>
 
+      {/* Main Sections */}
       <StudioCategories />
       <FeaturedStudios />
       <HowItWorks />
