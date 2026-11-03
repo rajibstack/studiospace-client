@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
 import {
   Calendar,
   Clock,
@@ -14,6 +15,7 @@ import {
   MapPin,
   FolderSearch,
   ArrowRight,
+  FileDown,
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -47,7 +49,6 @@ function SkeletonGrid() {
     </div>
   );
 }
-
 
 function EmptyState({
   title = "No bookings found",
@@ -91,7 +92,6 @@ export default function MyBookingsPage() {
       setLoading(false);
       return;
     }
-
 
     fetch(`${API_URL}/api/bookings/my-bookings?email=${user.email}`, {
       credentials: "include",
@@ -137,12 +137,87 @@ export default function MyBookingsPage() {
       }
 
       setBookings(
-        bookings.map((b) => (b._id === id ? { ...b, status: "Cancelled" } : b)),
+        bookings.map((b) => (b._id === id ? { ...b, status: "Cancelled" } : b))
       );
       toast.success("Booking cancelled successfully!");
     } catch (err) {
       console.error("Cancel error:", err);
       toast.error(err.message || "Something went wrong");
+    }
+  };
+
+  // 📄 jsPDF দিয়ে ইনভয়েস ডাউনলোড করার ফাংশন
+  const downloadInvoice = (booking) => {
+    try {
+      const doc = new jsPDF();
+      const studioTitle =
+        booking.studio?.name || booking.studioTitle || "Studio Session";
+      const amount = booking.totalPrice || booking.totalAmount || "0";
+
+      // Header Section
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(245, 158, 11); // Amber Color
+      doc.text("StudioSpace", 20, 25);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text("Creative Workspace Sharing Marketplace", 20, 32);
+
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      doc.text("BOOKING RECEIPT / INVOICE", 120, 25);
+
+      // Separator Line
+      doc.setDrawColor(220, 220, 220);
+      doc.line(20, 38, 190, 38);
+
+      // Details Section
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Invoice ID: ${booking._id}`, 20, 50);
+      doc.text(`Issue Date: ${new Date().toLocaleDateString()}`, 20, 58);
+      doc.text(`Customer Email: ${user?.email || "N/A"}`, 20, 66);
+
+      doc.line(20, 74, 190, 74);
+
+      // Table Header
+      doc.setFont("helvetica", "bold");
+      doc.text("Studio Details", 20, 85);
+      doc.text("Booking Info", 120, 85);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(`Studio Name: ${studioTitle}`, 20, 95);
+      doc.text(`Location: ${booking.location || "Online / Standard"}`, 20, 103);
+      doc.text(`Scheduled Date: ${booking.date}`, 120, 95);
+      doc.text(`Duration: ${booking.hours || 1} Hours`, 120, 103);
+      doc.text(`Status: ${booking.status || "Pending"}`, 120, 111);
+
+      doc.line(20, 120, 190, 120);
+
+      // Pricing Section
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text(`Total Amount Paid: $${amount}`, 120, 135);
+
+      // Footer Section
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(120, 120, 120);
+      doc.text(
+        "Thank you for choosing StudioSpace for your creative projects!",
+        20,
+        160
+      );
+
+      // Trigger Download
+      doc.save(`StudioSpace-Invoice-${booking._id.slice(-6)}.pdf`);
+      toast.success("Invoice downloaded successfully!");
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      toast.error("Failed to generate PDF invoice");
     }
   };
 
@@ -281,16 +356,24 @@ export default function MyBookingsPage() {
                   </div>
                 </div>
 
-                {booking.status === "Pending" && (
-                  <div className="mt-6 pt-4 border-t border-neutral-800 flex justify-end">
+                {/* Card Actions Footer */}
+                <div className="mt-6 pt-4 border-t border-neutral-800 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => downloadInvoice(booking)}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <FileDown className="w-4 h-4" /> Invoice PDF
+                  </button>
+
+                  {booking.status === "Pending" && (
                     <button
                       onClick={() => handleCancelBooking(booking._id)}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                     >
-                      <Trash2 className="w-4 h-4" /> Cancel Booking
+                      <Trash2 className="w-4 h-4" /> Cancel
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
