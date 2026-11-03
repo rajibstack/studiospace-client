@@ -3,8 +3,70 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle, MapPin } from "lucide-react";
-import { SkeletonGrid } from "@/components/Skeleton"; 
+import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle, MapPin, FolderSearch, ArrowRight } from "lucide-react";
+
+// 🎨 Built-in Skeleton Card & Grid Component
+function SkeletonCard() {
+  return (
+    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl animate-pulse flex flex-col justify-between space-y-4">
+      <div className="w-full h-40 bg-neutral-800 rounded-xl" />
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <div className="w-24 h-6 bg-neutral-800 rounded-full" />
+          <div className="w-16 h-6 bg-neutral-800 rounded-md" />
+        </div>
+        <div className="w-3/4 h-6 bg-neutral-800 rounded-md" />
+        <div className="w-1/2 h-4 bg-neutral-800 rounded-md" />
+      </div>
+      <div className="pt-4 border-t border-neutral-800 space-y-2">
+        <div className="w-full h-4 bg-neutral-800 rounded-md" />
+        <div className="w-2/3 h-4 bg-neutral-800 rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <SkeletonCard />
+      <SkeletonCard />
+      <SkeletonCard />
+    </div>
+  );
+}
+
+// 🌟 Friendly Empty State Component
+function EmptyState({
+  title = "No bookings found",
+  description = "You haven't scheduled any studio sessions yet. Explore our professional creative spaces and book your first session today.",
+  actionLabel = "Explore Studios",
+  actionHref = "/studios",
+  icon: Icon = FolderSearch,
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-16 px-4 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-xl max-w-2xl mx-auto my-10">
+      <div className="relative mb-6">
+        <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-xl animate-pulse" />
+        <div className="relative p-4 bg-neutral-950 border border-neutral-800 rounded-2xl text-amber-500 shadow-inner">
+          <Icon className="w-8 h-8" />
+        </div>
+      </div>
+      <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{title}</h3>
+      <p className="text-neutral-400 text-sm sm:text-base max-w-md mb-8 leading-relaxed">
+        {description}
+      </p>
+      {actionHref && (
+        <a
+          href={actionHref}
+          className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2 cursor-pointer"
+        >
+          {actionLabel} <ArrowRight className="w-4 h-4" />
+        </a>
+      )}
+    </div>
+  );
+}
 
 export default function MyBookingsPage() {
   const { user, token } = useAuth();
@@ -75,7 +137,7 @@ export default function MyBookingsPage() {
       toast.success("Booking cancelled successfully!");
     } catch (err) {
       console.error("Cancel error:", err);
-      alert(err.message);
+      toast.error(err.message || "Something went wrong");
     }
   };
 
@@ -93,7 +155,6 @@ export default function MyBookingsPage() {
         return { bg: "bg-neutral-800 border-neutral-700 text-neutral-400", icon: AlertCircle, label: status || "Pending" };
     }
   };
-
 
   if (loading) {
     return (
@@ -121,9 +182,13 @@ export default function MyBookingsPage() {
       {error && <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl">{error}</div>}
 
       {bookings.length === 0 ? (
-        <div className="text-center py-20 bg-neutral-900 border border-neutral-800 rounded-2xl">
-          <p className="text-neutral-400">You have no bookings yet.</p>
-        </div>
+        <EmptyState
+          title="No Active Bookings Yet"
+          description="You haven't scheduled any studio sessions yet. Explore our professional creative spaces and book your first session today."
+          actionLabel="Explore Studios"
+          actionHref="/studios"
+          icon={Calendar}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {bookings.map((booking) => {
