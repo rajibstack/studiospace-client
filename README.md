@@ -1,6 +1,6 @@
-# StudioSpace 🎬
+# StudioSpace — Creative Workspace Sharing Platform
 
-**StudioSpace** is a modern, peer-to-peer (P2P) creative workspace sharing platform built for creators, photographers, musicians, and podcasters to rent, explore, and manage professional studio spaces effortlessly.
+A peer-to-peer workspace sharing marketplace web application connecting creators and professionals with premium production spaces, recording suites, and creative studios.
 
 ---
 
@@ -13,30 +13,18 @@
 
 ## ✨ Key Features
 
-- **🔐 Secure Authentication (HTTPOnly Cookies & JWT):** Fully secured authentication flow using JSON Web Tokens stored safely inside HTTPOnly cookies to prevent XSS and security vulnerabilities.
-- **🏠 Studio Space Management:**
-  - **Explore Studios:** Filter and search through various studio categories, locations, and pricing.
-  - **Studio Details:** View complete information, photos, amenities, and host details.
-  - **Add New Studio:** Creators and space owners can easily list their studios with photos, pricing, and specs.
-  - **My Studio Listings:** Space owners can update, edit, or remove their posted studios.
-- **📅 Double-Booking Prevention & Booking System:**
-  - Prevents overlapping reservations for the same studio on the same date.
-  - Interactive booking modal for selecting dates and time slots.
-  - Track booking states: `Pending`, `Confirmed`, `Completed`, and `Cancelled`.
-- **📄 PDF Booking Invoice Generator:** 
-  - Downloadable PDF receipts for confirmed studio bookings generated directly on the client side using `jsPDF`.
-- **❤️ Saved Studios Wishlist:** 
-  - Logged-in users can bookmark their favorite studio spaces, saved directly into MongoDB.
-- **🌓 Global Light/Dark Theme:** 
-  - Built-in theme switcher integrated seamlessly into the navigation header with persistent user preferences (`localStorage`).
-- **📱 Fully Responsive Design & Active Link Highlighting:** 
-  - Mobile-friendly user interface with active menu route indicators, skeleton loading UI, and user profile management.
+- \*\* Peer-to-Peer Studio Exploration & Booking: Browse diverse creative workspaces, filter by categories, and book sessions seamlessly with real-time collision checks preventing double bookings.
+- \*\* Secure Authentication: Robust user authentication system powered by JWT with secure, HTTPOnly cookies for safe session management.
+- \*\* Downloadable PDF Invoice Generator: Built-in jsPDF integration allowing users to download professional, formatted booking receipts directly from their dashboard.
+- \*\* Saved Studios Wishlist: Interactive wishlist functionality allowing logged-in users to save and manage their favorite creative spaces.
+- \*\* Dynamic Dark/Light Mode Theme: Fully customizable global theme toggle built with modern Tailwind CSS v4 custom variants.
 
 ---
 
 ## 🛠️ Tech Stack & Technologies
 
 ### **Frontend**
+
 - **Framework:** Next.js (App Router)
 - **Styling:** Tailwind CSS v4
 - **Icons:** Lucide React
@@ -44,6 +32,7 @@
 - **Notifications:** Sonner Toast
 
 ### **Backend**
+
 - **Runtime:** Node.js
 - **Framework:** Express.js
 - **Database:** MongoDB
@@ -76,35 +65,59 @@ studiospace-client/
 ## ⚡ Getting Started (Local Setup)
 
 ### **Prerequisites**
+
 Make sure you have Node.js and npm installed on your machine.
 
 ### **1. Clone the repository**
+
 ```bash
 git clone https://github.com/your-username/studiospace-client.git
 cd studiospace-client
 ```
 
 ### **2. Install Dependencies**
+
 ```bash
 npm install
 ```
 
 ### **3. Set Up Environment Variables**
-Create a `.env.local` file in the root of the project and add your backend API URL:
+
+Create a `.env` in the root of the server folder and add your environment variables:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+NODE_ENV=development
 ```
 
 ### **4. Run Development Server**
+
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Setup and Run the Client Application**
 
----
+cd studiospace-client
+npm install
 
-## 📝 License
+### **Create a .env.local file in the root of the client folder and add your API URL:**
 
-This project is open-source and available under the [MIT License](LICENSE).
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+### **4. Run Development Server**
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 in your browser to view the application.
+
+### **Examiner Test Credentials**
+
+You can use the following test account credentials to log in and evaluate the platform features (such as booking management, wishlists, and invoice generation):
+
+Email: test@gmail.com
+Password: Test1234@ (Or use Google/Email Authentication configured in the app)
