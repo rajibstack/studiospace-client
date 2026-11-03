@@ -14,12 +14,19 @@ export default function Footer() {
   ]);
 
   useEffect(() => {
-    // ব্যাকএন্ড থেকে স্টুডিও ডাটা এনে ইউনিক ক্যাটাগরিগুলো ডাইনামিকভাবে লোড করার জন্য
-    fetch("http://localhost:5000/api/studios")
-      .then((res) => res.json())
+    // এনভায়রনমেন্ট ভেরিয়েবল থেকে API URL ডাইনামিক করা হলো
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+    fetch(`${apiUrl}/api/studios`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch studios");
+        }
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          // ডুপ্লিকেট ক্যাটাগরি বাদ দিয়ে ইউনিক ক্যাটাগরি ফিল্টার করা
+          // ডুপ্লিকেট ক্যাটাগরি বাদ দিয়ে ইউনিক ক্যাটাগরি ফিল্টার করা
           const uniqueCategories = [...new Set(data.map((studio) => studio.category))]
             .filter(Boolean)
             .map((cat) => ({ name: cat }));
@@ -79,7 +86,7 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-4 text-sm tracking-wider uppercase">Newsletter</h3>
           <p className="text-sm mb-3">Subscribe to get host updates & studio discount offers.</p>
-          <form className="flex gap-2">
+          <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
             <input
               type="email"
               placeholder="Enter your email"

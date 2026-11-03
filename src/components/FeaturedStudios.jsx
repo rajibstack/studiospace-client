@@ -8,14 +8,24 @@ export default function FeaturedStudios() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/studios/featured")
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    
+    fetch(`${apiUrl}/api/studios/featured`)
       .then((res) => res.json())
       .then((data) => {
-        setStudios(data);
+        // ডেটা যদি সরাসরি অ্যারে না হয়ে অবজেক্টের ভেতর থাকে, তবে ডেটা প্রপার্টি অনুযায়ী সেট করুন
+        if (Array.isArray(data)) {
+          setStudios(data);
+        } else if (data.success && Array.isArray(data.data)) {
+          setStudios(data.data);
+        } else {
+          setStudios([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
         console.error("Failed to fetch featured studios:", err);
+        setStudios([]);
         setLoading(false);
       });
   }, []);
@@ -24,7 +34,8 @@ export default function FeaturedStudios() {
     return <div className="text-center py-16 text-neutral-400">Loading featured studios...</div>;
   }
 
-  if (studios.length === 0) {
+  // যদি studios অ্যারে না হয় বা খালি থাকে, তবে ক্র্যাশ না করে নিরাপদে রিটার্ন করবে
+  if (!Array.isArray(studios) || studios.length === 0) {
     return null;
   }
 
@@ -46,13 +57,13 @@ export default function FeaturedStudios() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {studios.map((studio) => (
           <div
-            key={studio._id}
+            key={studio._id || Math.random()}
             className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex flex-col hover:border-amber-500/50 transition-colors"
           >
             <div className="relative h-48 w-full">
               <img
                 src={studio.image || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=500&auto=format&fit=crop&q=80"}
-                alt={studio.title}
+                alt={studio.title || "Studio"}
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-3 left-3 bg-neutral-950/80 backdrop-blur-md text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-neutral-800 uppercase">
@@ -69,12 +80,12 @@ export default function FeaturedStudios() {
                 <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{studio.title}</h3>
                 <p className="text-xs text-neutral-400 flex items-center gap-1.5 mb-3">
                   <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                  {studio.location}
+                  {studio.location || "Location not specified"}
                 </p>
                 <div className="flex items-center justify-between text-sm mb-4">
                   <span className="text-amber-400 font-bold flex items-center">
                     <DollarSign className="w-4 h-4" />
-                    {studio.price} / hr
+                    {studio.price || "0"} / hr
                   </span>
                 </div>
               </div>
