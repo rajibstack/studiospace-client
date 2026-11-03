@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "sonner"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,19 @@ export default function RootLayout({ children }) {
             <Navbar />
             <main className="flex-grow">{children}</main>
             <Footer />
+            <Toaster 
+              position="top-right" 
+              richColors 
+              theme="dark"
+              toastOptions={{
+                style: {
+                  background: '#ff4a4a',
+                  border: '1px solid #ff4a4a',
+                  color: '#ffffff',
+                },
+                className: 'rounded-2xl shadow-2xl',
+              }}
+            />
           </AuthProvider>
         </GoogleOAuthProvider>
       </body>
