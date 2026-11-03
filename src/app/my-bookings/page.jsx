@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle, MapPin } from "lucide-react";
 
 export default function MyBookingsPage() {
   const { user, token } = useAuth();
@@ -18,7 +19,6 @@ export default function MyBookingsPage() {
 
     const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
 
-    // ইমেইল এবং টোকেন উভয়ই পাঠানো হলো যাতে ব্যাকএন্ডে ডেটা পেতে কোনো সমস্যা না হয়
     fetch(`http://localhost:5000/api/bookings/my-bookings?email=${user.email}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -49,7 +49,7 @@ export default function MyBookingsPage() {
     fetchBookings();
   }, [user, token]);
 
-  const handleCancelBooking = async (id) => {
+const handleCancelBooking = async (id) => {
     if (!confirm("Are you sure you want to cancel this booking?")) return;
 
     const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
@@ -58,18 +58,24 @@ export default function MyBookingsPage() {
       const res = await fetch(`http://localhost:5000/api/bookings/${id}`, {
         method: "PATCH",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
       });
 
-      if (!res.ok) throw new Error("Failed to cancel booking");
+      const data = await res.json();
 
-      // Local state update kora jate cancel korar por status "Cancelled" hoye jay
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to cancel booking");
+      }
+
       setBookings(
         bookings.map((b) => (b._id === id ? { ...b, status: "Cancelled" } : b))
       );
+      toast.success("Booking cancelled successfully!");
     } catch (err) {
-      alert(err.message);
+      console.error("Cancel error:", err);
+      alert(err.message || "Failed to connect to the server.");
     }
   };
 
@@ -154,7 +160,13 @@ export default function MyBookingsPage() {
 
                   <h3 className="text-xl font-bold text-white mb-2">{booking.studio?.name || booking.studioTitle || "Studio Session"}</h3>
                   
-                  <div className="space-y-2 mt-4 text-sm text-neutral-300">
+                  {booking.location && (
+                    <p className="text-neutral-400 text-sm flex items-center gap-1.5 mb-3">
+                      <MapPin className="w-4 h-4 text-amber-500" /> {booking.location}
+                    </p>
+                  )}
+
+                  <div className="space-y-2 mt-4 text-sm text-neutral-300 border-t border-neutral-800 pt-3">
                     <p className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-amber-500" /> Date: {booking.date}
                     </p>
@@ -164,7 +176,6 @@ export default function MyBookingsPage() {
                   </div>
                 </div>
 
-                {/* Shudhu 'Pending' status thaklei cancel button dekhabe */}
                 {booking.status === "Pending" && (
                   <div className="mt-6 pt-4 border-t border-neutral-800 flex justify-end">
                     <button
