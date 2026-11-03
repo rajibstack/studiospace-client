@@ -7,6 +7,8 @@ import { toast, Toaster } from "sonner";
 import { Camera, Mail, Lock, User, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -45,7 +47,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, photoURL, password }),
@@ -78,14 +80,12 @@ export default function RegisterPage() {
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        // গুগল থেকে ইউজারের প্রোফাইল ইনফো ফেচ করা
         const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
         const googleUser = await userInfoRes.json();
 
-        // ব্যাকএন্ডে টোকেন বা ইউজার ডাটা পাঠিয়ে আমাদের নিজস্ব JWT জেনারেট করে নেওয়া
-        const res = await fetch("http://localhost:5000/api/auth/google", {
+        const res = await fetch(`${API_URL}/api/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 

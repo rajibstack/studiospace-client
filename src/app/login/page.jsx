@@ -6,6 +6,8 @@ import { toast, Toaster } from "sonner";
 import { Camera, Mail, Lock, ArrowRight } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -26,7 +28,7 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -58,7 +60,7 @@ export default function LoginPage() {
         });
         const googleUser = await userInfoRes.json();
 
-        const res = await fetch("http://localhost:5000/api/auth/google", {
+        const res = await fetch(`${API_URL}/api/auth/google`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
