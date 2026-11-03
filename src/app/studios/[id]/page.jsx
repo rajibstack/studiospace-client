@@ -14,6 +14,64 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
+function StudioDetailsSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-pulse">
+      {/* Header Info Skeleton */}
+      <div className="mb-6 space-y-3">
+        <div className="w-24 h-6 bg-neutral-800 rounded-full" />
+        <div className="w-3/4 sm:w-1/2 h-10 bg-neutral-800 rounded-xl" />
+        <div className="w-48 h-4 bg-neutral-800 rounded-md" />
+      </div>
+
+      {/* Gallery Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+        <div className="md:col-span-2 h-[350px] sm:h-[450px] bg-neutral-800 rounded-2xl" />
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-4 h-[350px] sm:h-[450px]">
+          <div className="h-full bg-neutral-800 rounded-2xl" />
+          <div className="h-full bg-neutral-800 rounded-2xl" />
+        </div>
+      </div>
+
+      {/* Main Content & Sidebar Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4">
+            <div className="w-40 h-6 bg-neutral-800 rounded-md" />
+            <div className="space-y-2">
+              <div className="w-full h-4 bg-neutral-800 rounded-md" />
+              <div className="w-full h-4 bg-neutral-800 rounded-md" />
+              <div className="w-2/3 h-4 bg-neutral-800 rounded-md" />
+            </div>
+          </div>
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4">
+            <div className="w-48 h-6 bg-neutral-800 rounded-md" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="h-20 bg-neutral-950 rounded-xl border border-neutral-800" />
+              <div className="h-20 bg-neutral-950 rounded-xl border border-neutral-800" />
+              <div className="h-20 bg-neutral-950 rounded-xl border border-neutral-800" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="w-28 h-8 bg-neutral-800 rounded-md" />
+              <div className="w-16 h-6 bg-neutral-800 rounded-full" />
+            </div>
+            <div className="space-y-3">
+              <div className="w-full h-4 bg-neutral-800 rounded-md" />
+              <div className="w-full h-4 bg-neutral-800 rounded-md" />
+            </div>
+            <div className="w-full h-12 bg-neutral-800 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StudioDetailContent() {
   const { id } = useParams();
   const router = useRouter();
@@ -53,7 +111,6 @@ function StudioDetailContent() {
       return;
     }
 
-    // টোকেন নিশ্চিত করার জন্য AuthContext বা localStorage থেকে টোকেন নেওয়া হলো
     const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
 
     const pricePerHour = Number(studio.price || studio.pricePerHour || 0);
@@ -102,11 +159,7 @@ function StudioDetailContent() {
   };
 
   if (loading) {
-    return (
-      <div className="text-center py-20 text-neutral-400">
-        Loading studio details...
-      </div>
-    );
+    return <StudioDetailsSkeleton />;
   }
 
   if (!studio) {
@@ -388,8 +441,11 @@ function StudioDetailContent() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-black rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-black rounded-xl text-sm font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  {submitting && (
+                    <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                  )}
                   {submitting ? "Booking..." : "Confirm Booking"}
                 </button>
               </div>
@@ -403,13 +459,7 @@ function StudioDetailContent() {
 
 export default function StudioDetailsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="text-center py-20 text-neutral-400">
-          Loading studio details...
-        </div>
-      }
-    >
+    <Suspense fallback={<StudioDetailsSkeleton />}>
       <StudioDetailContent />
     </Suspense>
   );

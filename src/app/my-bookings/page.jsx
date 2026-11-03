@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle, MapPin } from "lucide-react";
+import { SkeletonGrid } from "@/components/Skeleton"; 
 
 export default function MyBookingsPage() {
   const { user, token } = useAuth();
@@ -49,7 +50,7 @@ export default function MyBookingsPage() {
     fetchBookings();
   }, [user, token]);
 
-const handleCancelBooking = async (id) => {
+  const handleCancelBooking = async (id) => {
     if (!confirm("Are you sure you want to cancel this booking?")) return;
 
     const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
@@ -58,7 +59,6 @@ const handleCancelBooking = async (id) => {
       const res = await fetch(`http://localhost:5000/api/bookings/${id}`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
       });
@@ -75,47 +75,36 @@ const handleCancelBooking = async (id) => {
       toast.success("Booking cancelled successfully!");
     } catch (err) {
       console.error("Cancel error:", err);
-      alert(err.message || "Failed to connect to the server.");
+      alert(err.message);
     }
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
       case "Pending":
-        return {
-          bg: "bg-amber-500/10 border-amber-500/20 text-amber-400",
-          icon: Clock3,
-          label: "Pending",
-        };
+        return { bg: "bg-amber-500/10 border-amber-500/20 text-amber-400", icon: Clock3, label: "Pending" };
       case "Confirmed":
-        return {
-          bg: "bg-blue-500/10 border-blue-500/20 text-blue-400",
-          icon: CheckCircle2,
-          label: "Confirmed",
-        };
+        return { bg: "bg-blue-500/10 border-blue-500/20 text-blue-400", icon: CheckCircle2, label: "Confirmed" };
       case "Completed":
-        return {
-          bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
-          icon: CheckCircle2,
-          label: "Completed",
-        };
+        return { bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400", icon: CheckCircle2, label: "Completed" };
       case "Cancelled":
-        return {
-          bg: "bg-rose-500/10 border-rose-500/20 text-rose-400",
-          icon: XCircle,
-          label: "Cancelled",
-        };
+        return { bg: "bg-rose-500/10 border-rose-500/20 text-rose-400", icon: XCircle, label: "Cancelled" };
       default:
-        return {
-          bg: "bg-neutral-800 border-neutral-700 text-neutral-400",
-          icon: AlertCircle,
-          label: status || "Pending",
-        };
+        return { bg: "bg-neutral-800 border-neutral-700 text-neutral-400", icon: AlertCircle, label: status || "Pending" };
     }
   };
 
+
   if (loading) {
-    return <div className="text-center py-20 text-neutral-400">Loading your bookings...</div>;
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white">My Bookings</h1>
+          <p className="text-neutral-400 mt-2">Manage your scheduled studio sessions and active reservations.</p>
+        </div>
+        <SkeletonGrid />
+      </div>
+    );
   }
 
   if (!user) {

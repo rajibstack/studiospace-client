@@ -3,7 +3,48 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { MapPin, DollarSign, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight } from "lucide-react";
+
+// 🎨 Branded Skeleton Loader Component for Studio Cards
+function StudioCardSkeleton() {
+  return (
+    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl animate-pulse flex flex-col justify-between">
+      <div>
+        <div className="w-full h-56 bg-neutral-800" />
+        <div className="p-6 space-y-3">
+          <div className="w-3/4 h-6 bg-neutral-800 rounded-md" />
+          <div className="w-1/2 h-4 bg-neutral-800 rounded-md" />
+          <div className="space-y-2 pt-2">
+            <div className="w-full h-3 bg-neutral-800 rounded-md" />
+            <div className="w-4/5 h-3 bg-neutral-800 rounded-md" />
+          </div>
+        </div>
+      </div>
+      <div className="p-6 pt-0">
+        <div className="w-full h-10 bg-neutral-800 rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+function StudiosSkeletonGrid() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="mb-8 space-y-2 animate-pulse">
+        <div className="w-64 h-8 bg-neutral-800 rounded-lg" />
+        <div className="w-96 h-4 bg-neutral-800 rounded-md" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <StudioCardSkeleton />
+        <StudioCardSkeleton />
+        <StudioCardSkeleton />
+        <StudioCardSkeleton />
+        <StudioCardSkeleton />
+        <StudioCardSkeleton />
+      </div>
+    </div>
+  );
+}
 
 function StudioListContent() {
   const [studios, setStudios] = useState([]);
@@ -36,7 +77,7 @@ function StudioListContent() {
     : studios;
 
   if (loading) {
-    return <div className="text-center py-20 text-neutral-400">Loading studios...</div>;
+    return <StudiosSkeletonGrid />;
   }
 
   return (
@@ -112,7 +153,7 @@ function StudioListContent() {
 
 export default function ExploreStudiosPage() {
   return (
-    <Suspense fallback={<div className="text-center py-20 text-neutral-400">Loading...</div>}>
+    <Suspense fallback={<StudiosSkeletonGrid />}>
       <StudioListContent />
     </Suspense>
   );

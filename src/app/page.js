@@ -14,6 +14,36 @@ import StudioCategories from "@/components/StudioCategories";
 import HowItWorks from "@/components/HowItWorks";
 import HostGuarantee from "@/components/HostGuarantee";
 
+function HomeSkeleton() {
+  return (
+    <div className="flex flex-col min-h-screen bg-neutral-950 text-neutral-100 w-full animate-pulse">
+      {/* Hero Section Skeleton */}
+      <div className="relative h-[85vh] w-full bg-neutral-900 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-6">
+          <div className="w-36 h-7 bg-neutral-800 rounded-full" />
+          <div className="w-3/4 sm:w-1/2 h-16 bg-neutral-800 rounded-2xl" />
+          <div className="w-full sm:w-96 h-12 bg-neutral-800 rounded-xl" />
+          <div className="flex gap-4 pt-4">
+            <div className="w-40 h-12 bg-neutral-800 rounded-xl" />
+            <div className="w-40 h-12 bg-neutral-800 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      {/* Content Skeleton Sections */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full space-y-12">
+        <div className="w-64 h-8 bg-neutral-900 rounded-lg" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="h-36 bg-neutral-900 rounded-2xl border border-neutral-800" />
+          <div className="h-36 bg-neutral-900 rounded-2xl border border-neutral-800" />
+          <div className="h-36 bg-neutral-900 rounded-2xl border border-neutral-800" />
+          <div className="h-36 bg-neutral-900 rounded-2xl border border-neutral-800" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -22,7 +52,7 @@ export default function Home() {
   }, []);
 
   if (!isMounted) {
-    return null;
+    return <HomeSkeleton />;
   }
 
   return (
