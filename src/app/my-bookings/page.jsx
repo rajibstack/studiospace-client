@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Calendar, Clock, Trash2, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle } from "lucide-react";
 
 export default function MyBookingsPage() {
   const { user, token } = useAuth();
@@ -10,15 +10,18 @@ export default function MyBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!token) {
+  const fetchBookings = () => {
+    if (!user) {
       setLoading(false);
       return;
     }
 
-    fetch("http://localhost:5000/api/bookings", {
+    const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
+
+    // ইমেইল এবং টোকেন উভয়ই পাঠানো হলো যাতে ব্যাকএন্ডে ডেটা পেতে কোনো সমস্যা না হয়
+    fetch(`http://localhost:5000/api/bookings/my-bookings?email=${user.email}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authToken}`,
       },
     })
       .then((res) => {
@@ -40,24 +43,68 @@ export default function MyBookingsPage() {
         setError("Failed to load bookings");
         setLoading(false);
       });
-  }, [token]);
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, [user, token]);
 
   const handleCancelBooking = async (id) => {
     if (!confirm("Are you sure you want to cancel this booking?")) return;
 
+    const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
+
     try {
-      const res =- await fetch(`http://localhost:5000/api/bookings/${id}`, {
-        method: "DELETE",
+      const res = await fetch(`http://localhost:5000/api/bookings/${id}`, {
+        method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
       if (!res.ok) throw new Error("Failed to cancel booking");
 
-      setBookings(bookings.filter((b) => b._id !== id));
+      // Local state update kora jate cancel korar por status "Cancelled" hoye jay
+      setBookings(
+        bookings.map((b) => (b._id === id ? { ...b, status: "Cancelled" } : b))
+      );
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Pending":
+        return {
+          bg: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+          icon: Clock3,
+          label: "Pending",
+        };
+      case "Confirmed":
+        return {
+          bg: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+          icon: CheckCircle2,
+          label: "Confirmed",
+        };
+      case "Completed":
+        return {
+          bg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+          icon: CheckCircle2,
+          label: "Completed",
+        };
+      case "Cancelled":
+        return {
+          bg: "bg-rose-500/10 border-rose-500/20 text-rose-400",
+          icon: XCircle,
+          label: "Cancelled",
+        };
+      default:
+        return {
+          bg: "bg-neutral-800 border-neutral-700 text-neutral-400",
+          icon: AlertCircle,
+          label: status || "Pending",
+        };
     }
   };
 
@@ -84,38 +131,53 @@ export default function MyBookingsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bookings.map((booking) => (
-            <div key={booking._id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> Confirmed
-                  </span>
-                  <span className="text-sm font-bold text-amber-500">${booking.totalPrice}</span>
+          {bookings.map((booking) => {
+            const badge = getStatusBadge(booking.status);
+            const BadgeIcon = badge.icon;
+
+            return (
+              <div key={booking._id} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                  {booking.studioImage && (
+                    <img
+                      src={booking.studioImage}
+                      alt={booking.studioTitle}
+                      className="w-full h-40 object-cover rounded-xl mb-4 border border-neutral-800"
+                    />
+                  )}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className={`px-3 py-1 border text-xs font-semibold rounded-full flex items-center gap-1 ${badge.bg}`}>
+                      <BadgeIcon className="w-3 h-3" /> {badge.label}
+                    </span>
+                    <span className="text-sm font-bold text-amber-500">${booking.totalPrice || booking.totalAmount}</span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-2">{booking.studio?.name || booking.studioTitle || "Studio Session"}</h3>
+                  
+                  <div className="space-y-2 mt-4 text-sm text-neutral-300">
+                    <p className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-amber-500" /> Date: {booking.date}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-500" /> Hours Needed: {booking.hours || 1} hrs
+                    </p>
+                  </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-white mb-2">{booking.studio?.name || booking.studioName || "Studio Session"}</h3>
-                
-                <div className="space-y-2 mt-4 text-sm text-neutral-300">
-                  <p className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-amber-500" /> Date: {booking.date}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-amber-500" /> Time: {booking.startTime} - {booking.endTime}
-                  </p>
-                </div>
+                {/* Shudhu 'Pending' status thaklei cancel button dekhabe */}
+                {booking.status === "Pending" && (
+                  <div className="mt-6 pt-4 border-t border-neutral-800 flex justify-end">
+                    <button
+                      onClick={() => handleCancelBooking(booking._id)}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl text-sm font-medium transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" /> Cancel Booking
+                    </button>
+                  </div>
+                )}
               </div>
-
-              <div className="mt-6 pt-4 border-t border-neutral-800 flex justify-end">
-                <button
-                  onClick={() => handleCancelBooking(booking._id)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl text-sm font-medium transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" /> Cancel Booking
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

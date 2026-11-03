@@ -1,17 +1,30 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useParams } from "next/navigation";
-import { MapPin, DollarSign, Users, Star, ShieldCheck, CheckCircle2, User } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  MapPin,
+  DollarSign,
+  Users,
+  Star,
+  ShieldCheck,
+  CheckCircle2,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 function StudioDetailContent() {
   const { id } = useParams();
+  const router = useRouter();
+  const { user, token } = useAuth();
+
   const [studio, setStudio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingHours, setBookingHours] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -27,26 +40,91 @@ function StudioDetailContent() {
       });
   }, [id]);
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!bookingDate) {
       toast.error("Please select a date for booking!");
       return;
     }
-    toast.success("Studio booked successfully!");
-    setIsModalOpen(false);
+
+    if (!user) {
+      toast.error("Please login first to book a studio!");
+      router.push("/login");
+      return;
+    }
+
+    // টোকেন নিশ্চিত করার জন্য AuthContext বা localStorage থেকে টোকেন নেওয়া হলো
+    const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
+
+    const pricePerHour = Number(studio.price || studio.pricePerHour || 0);
+    const securityDep = Number(studio.securityDeposit || 50);
+    const totalAmount = pricePerHour * Number(bookingHours) + securityDep;
+
+    const bookingData = {
+      studioId: studio._id || id,
+      studioTitle: studio.title || studio.name,
+      studioImage: studio.image,
+      location: studio.location,
+      date: bookingDate,
+      hours: Number(bookingHours),
+      totalPrice: totalAmount,
+      userEmail: user.email,
+      userName: user.name || user.displayName || "User",
+      status: "Pending",
+    };
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Studio booked successfully!");
+        setIsModalOpen(false);
+        router.push("/my-bookings");
+      } else {
+        toast.error(data.error || data.message || "Failed to book studio");
+      }
+    } catch (err) {
+      console.error("Booking error:", err);
+      toast.error("Something went wrong while booking.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
-    return <div className="text-center py-20 text-neutral-400">Loading studio details...</div>;
+    return (
+      <div className="text-center py-20 text-neutral-400">
+        Loading studio details...
+      </div>
+    );
   }
 
   if (!studio) {
-    return <div className="text-center py-20 text-neutral-400">Studio not found.</div>;
+    return (
+      <div className="text-center py-20 text-neutral-400">
+        Studio not found.
+      </div>
+    );
   }
 
-  const hostPhoto = studio.ownerImage || studio.userPhoto || studio.photo || studio.photoURL || studio.user?.photoURL;
-  const hostName = studio.ownerName || studio.hostName || studio.name || "Studio Owner";
+  const hostPhoto =
+    studio.ownerImage ||
+    studio.userPhoto ||
+    studio.photo ||
+    studio.photoURL ||
+    studio.user?.photoURL;
+  const hostName =
+    studio.ownerName || studio.hostName || studio.name || "Studio Owner";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-white">
@@ -55,12 +133,15 @@ function StudioDetailContent() {
         <span className="text-xs font-semibold text-amber-500 uppercase px-3 py-1 bg-neutral-900 border border-neutral-800 rounded-full">
           {studio.category || "Studio"}
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold mt-3 mb-2">{studio.title || studio.name}</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mt-3 mb-2">
+          {studio.title || studio.name}
+        </h1>
         <p className="flex items-center gap-2 text-neutral-400 text-sm">
           <MapPin className="w-4 h-4 text-amber-500" /> {studio.location}
           <span className="mx-2">•</span>
           <span className="flex items-center gap-1 text-amber-400">
-            <Star className="w-4 h-4 fill-amber-400" /> {studio.rating || "4.9"} (24 reviews)
+            <Star className="w-4 h-4 fill-amber-400" /> {studio.rating || "4.9"}{" "}
+            (24 reviews)
           </span>
         </p>
       </div>
@@ -69,7 +150,10 @@ function StudioDetailContent() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
         <div className="md:col-span-2 h-[350px] sm:h-[450px] rounded-2xl overflow-hidden border border-neutral-800">
           <img
-            src={studio.image || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&auto=format&fit=crop&q=80"}
+            src={
+              studio.image ||
+              "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&auto=format&fit=crop&q=80"
+            }
             alt={studio.title}
             className="w-full h-full object-cover"
           />
@@ -77,14 +161,22 @@ function StudioDetailContent() {
         <div className="grid grid-cols-2 md:grid-cols-1 gap-4 h-[350px] sm:h-[450px]">
           <div className="h-full rounded-2xl overflow-hidden border border-neutral-800">
             <img
-              src={studio.image2 || studio.image || "https://images.unsplash.com/photo-1527011046414-4781f1f94f8c?w=800&auto=format&fit=crop&q=80"}
+              src={
+                studio.image2 ||
+                studio.image ||
+                "https://images.unsplash.com/photo-1527011046414-4781f1f94f8c?w=800&auto=format&fit=crop&q=80"
+              }
               alt="Studio detail 1"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="h-full rounded-2xl overflow-hidden border border-neutral-800">
             <img
-              src={studio.image3 || studio.image || "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&auto=format&fit=crop&q=80"}
+              src={
+                studio.image3 ||
+                studio.image ||
+                "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&auto=format&fit=crop&q=80"
+              }
               alt="Studio detail 2"
               className="w-full h-full object-cover"
             />
@@ -108,21 +200,30 @@ function StudioDetailContent() {
             <h2 className="text-xl font-bold mb-4">Studio Specifications</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
               <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                <span className="text-neutral-400 block text-xs mb-1">Max Capacity</span>
+                <span className="text-neutral-400 block text-xs mb-1">
+                  Max Capacity
+                </span>
                 <span className="font-semibold flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-amber-500" /> {studio.maxCapacity || "10"} Persons
+                  <Users className="w-4 h-4 text-amber-500" />{" "}
+                  {studio.maxCapacity || "10"} Persons
                 </span>
               </div>
               <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                <span className="text-neutral-400 block text-xs mb-1">Security Deposit</span>
+                <span className="text-neutral-400 block text-xs mb-1">
+                  Security Deposit
+                </span>
                 <span className="font-semibold flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-amber-500" /> ${studio.securityDeposit || "50"}
+                  <ShieldCheck className="w-4 h-4 text-amber-500" /> $
+                  {studio.securityDeposit || "50"}
                 </span>
               </div>
               <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                <span className="text-neutral-400 block text-xs mb-1">Hourly Rate</span>
+                <span className="text-neutral-400 block text-xs mb-1">
+                  Hourly Rate
+                </span>
                 <span className="font-semibold flex items-center gap-1.5 text-amber-400">
-                  <DollarSign className="w-4 h-4" /> ${studio.price || studio.pricePerHour} / hr
+                  <DollarSign className="w-4 h-4" /> $
+                  {studio.price || studio.pricePerHour} / hr
                 </span>
               </div>
             </div>
@@ -134,7 +235,10 @@ function StudioDetailContent() {
               <h2 className="text-xl font-bold mb-4">Amenities & Equipment</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {studio.amenities.map((amenity, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-neutral-300">
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 text-sm text-neutral-300"
+                  >
                     <CheckCircle2 className="w-4 h-4 text-amber-500 flex-shrink-0" />
                     <span>{amenity}</span>
                   </div>
@@ -157,7 +261,9 @@ function StudioDetailContent() {
               )}
             </div>
             <div>
-              <span className="text-xs text-neutral-400 uppercase tracking-wider">Hosted by</span>
+              <span className="text-xs text-neutral-400 uppercase tracking-wider">
+                Hosted by
+              </span>
               <h3 className="text-lg font-bold text-white">{hostName}</h3>
               <p className="text-xs text-neutral-400">Verified Host</p>
             </div>
@@ -169,22 +275,29 @@ function StudioDetailContent() {
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 sticky top-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <span className="text-2xl font-bold text-amber-400">${studio.price || studio.pricePerHour}</span>
+                <span className="text-2xl font-bold text-amber-400">
+                  ${studio.price || studio.pricePerHour}
+                </span>
                 <span className="text-neutral-400 text-sm"> / hour</span>
               </div>
               <div className="flex items-center gap-1 text-xs text-amber-400 bg-neutral-950 px-2.5 py-1 rounded-full border border-neutral-800">
-                <Star className="w-3 h-3 fill-amber-400" /> {studio.rating || "4.9"}
+                <Star className="w-3 h-3 fill-amber-400" />{" "}
+                {studio.rating || "4.9"}
               </div>
             </div>
 
             <div className="space-y-4 mb-6 text-sm text-neutral-300">
               <div className="flex justify-between py-2 border-b border-neutral-800">
                 <span>Security Deposit</span>
-                <span className="font-semibold">${studio.securityDeposit || "50"}</span>
+                <span className="font-semibold">
+                  ${studio.securityDeposit || "50"}
+                </span>
               </div>
               <div className="flex justify-between py-2 border-b border-neutral-800">
                 <span>Max Capacity</span>
-                <span className="font-semibold">{studio.maxCapacity || "10"} Guests</span>
+                <span className="font-semibold">
+                  {studio.maxCapacity || "10"} Guests
+                </span>
               </div>
             </div>
 
@@ -202,22 +315,34 @@ function StudioDetailContent() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-md p-6 relative">
-            <h3 className="text-xl font-bold mb-4">Book {studio.title || studio.name}</h3>
-            
+            <h3 className="text-xl font-bold mb-4">
+              Book {studio.title || studio.name}
+            </h3>
+
             <form onSubmit={handleBookingSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs text-neutral-400 mb-1">Select Date</label>
+                <label className="block text-xs text-neutral-400 mb-1">
+                  Select Date
+                </label>
                 <input
                   type="date"
                   value={bookingDate}
                   onChange={(e) => setBookingDate(e.target.value)}
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500"
+                  onClick={(e) => {
+                    if (e.target.showPicker) {
+                      e.target.showPicker();
+                    }
+                  }}
+                  style={{ colorScheme: "dark" }}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500 cursor-pointer"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-neutral-400 mb-1">Hours Needed</label>
+                <label className="block text-xs text-neutral-400 mb-1">
+                  Hours Needed
+                </label>
                 <input
                   type="number"
                   min="1"
@@ -231,8 +356,12 @@ function StudioDetailContent() {
 
               <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 text-sm space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-neutral-400">Rate ({bookingHours} hrs)</span>
-                  <span>${(studio.price || studio.pricePerHour) * bookingHours}</span>
+                  <span className="text-neutral-400">
+                    Rate ({bookingHours} hrs)
+                  </span>
+                  <span>
+                    ${(studio.price || studio.pricePerHour) * bookingHours}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-neutral-400">Security Deposit</span>
@@ -240,7 +369,11 @@ function StudioDetailContent() {
                 </div>
                 <div className="border-t border-neutral-800 pt-2 flex justify-between font-bold text-amber-400">
                   <span>Total Amount</span>
-                  <span>${((studio.price || studio.pricePerHour) * bookingHours) + Number(studio.securityDeposit || 50)}</span>
+                  <span>
+                    $
+                    {(studio.price || studio.pricePerHour) * bookingHours +
+                      Number(studio.securityDeposit || 50)}
+                  </span>
                 </div>
               </div>
 
@@ -254,9 +387,10 @@ function StudioDetailContent() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-black rounded-xl text-sm font-bold transition-colors"
+                  disabled={submitting}
+                  className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-black rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
                 >
-                  Confirm Booking
+                  {submitting ? "Booking..." : "Confirm Booking"}
                 </button>
               </div>
             </form>
@@ -269,7 +403,13 @@ function StudioDetailContent() {
 
 export default function StudioDetailsPage() {
   return (
-    <Suspense fallback={<div className="text-center py-20 text-neutral-400">Loading studio details...</div>}>
+    <Suspense
+      fallback={
+        <div className="text-center py-20 text-neutral-400">
+          Loading studio details...
+        </div>
+      }
+    >
       <StudioDetailContent />
     </Suspense>
   );
