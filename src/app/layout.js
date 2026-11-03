@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "StudioSpace — Creative Workspace Sharing Platform",
   description: "Peer-to-peer marketplace connecting creators with production spaces and recording suites.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {
