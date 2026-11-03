@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function AddStudioPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -37,8 +39,9 @@ export default function AddStudioPage() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
+      // টোকেন লোকালস্টোরেজে চেক করার প্রয়োজন নেই, কারণ কুকি ব্রাউজার স্বয়ংক্রিয়ভাবে পাঠাবে।
+      // তবে ইউজার লগইন করা না থাকলে বা ইউজার স্টেট মিসিং থাকলে চেক করতে পারেন:
+      if (!user) {
         toast.error("Please login first!");
         window.location.href = "/login";
         return;
@@ -59,13 +62,14 @@ export default function AddStudioPage() {
         ownerEmail: user?.email || "",
       };
 
-      const res = await fetch("http://localhost:5000/api/studios", {
+      const res = await fetch(`${API_URL}/api/studios`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization হেডার বাদ দেওয়া হয়েছে, কারণ কুকি ব্যবহার করা হচ্ছে
         },
         body: JSON.stringify(studioPayload),
+        credentials: "include", // <-- কুকি ব্যাকএন্ডে পাঠানোর জন্য এটি অত্যন্ত জরুরি
       });
 
       const data = await res.json();

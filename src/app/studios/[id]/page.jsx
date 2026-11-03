@@ -14,6 +14,8 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 function StudioDetailsSkeleton() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-pulse">
@@ -75,7 +77,7 @@ function StudioDetailsSkeleton() {
 function StudioDetailContent() {
   const { id } = useParams();
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
   const [studio, setStudio] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,7 +88,7 @@ function StudioDetailContent() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`http://localhost:5000/api/studios/${id}`)
+    fetch(`${API_URL}/api/studios/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setStudio(data);
@@ -111,8 +113,6 @@ function StudioDetailContent() {
       return;
     }
 
-    const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
-
     const pricePerHour = Number(studio.price || studio.pricePerHour || 0);
     const securityDep = Number(studio.securityDeposit || 50);
     const totalAmount = pricePerHour * Number(bookingHours) + securityDep;
@@ -132,13 +132,14 @@ function StudioDetailContent() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:5000/api/bookings", {
+      const res = await fetch(`${API_URL}/api/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          // Authorization হেডার বাদ দেওয়া হয়েছে, কারণ কুকি ব্যবহার করা হচ্ছে
         },
         body: JSON.stringify(bookingData),
+        credentials: "include", // <-- কুকি ব্যাকএন্ডে পাঠানোর জন্য এটি অত্যন্ত জরুরি
       });
 
       const data = await res.json();

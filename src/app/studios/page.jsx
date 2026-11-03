@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { MapPin, ArrowRight } from "lucide-react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 // 🎨 Branded Skeleton Loader Component for Studio Cards
 function StudioCardSkeleton() {
   return (
@@ -53,7 +55,7 @@ function StudioListContent() {
   const selectedCategory = searchParams.get("category");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/studios")
+    fetch(`${API_URL}/api/studios`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

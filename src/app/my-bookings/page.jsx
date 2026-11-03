@@ -5,6 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Calendar, Clock, Trash2, CheckCircle2, Clock3, XCircle, AlertCircle, MapPin, FolderSearch, ArrowRight } from "lucide-react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 // 🎨 Built-in Skeleton Card & Grid Component
 function SkeletonCard() {
   return (
@@ -69,7 +71,7 @@ function EmptyState({
 }
 
 export default function MyBookingsPage() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -80,12 +82,9 @@ export default function MyBookingsPage() {
       return;
     }
 
-    const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
-
-    fetch(`http://localhost:5000/api/bookings/my-bookings?email=${user.email}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+    // Authorization হেডার বাদ দেওয়া হয়েছে, কারণ কুকি স্বয়ংক্রিয়ভাবে পাস হবে
+    fetch(`${API_URL}/api/bookings/my-bookings?email=${user.email}`, {
+      credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
     })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch bookings");
@@ -110,19 +109,15 @@ export default function MyBookingsPage() {
 
   useEffect(() => {
     fetchBookings();
-  }, [user, token]);
+  }, [user]);
 
   const handleCancelBooking = async (id) => {
     if (!confirm("Are you sure you want to cancel this booking?")) return;
 
-    const authToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
-
     try {
-      const res = await fetch(`http://localhost:5000/api/bookings/${id}`, {
+      const res = await fetch(`${API_URL}/api/bookings/${id}`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
       });
 
       const data = await res.json();

@@ -4,6 +4,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useState, useEffect } from "react";
 import { Edit3, Trash2, MapPin, DollarSign, X } from "lucide-react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function MyListingsPage() {
   const [studios, setStudios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,11 +21,9 @@ export default function MyListingsPage() {
 
   const fetchMyStudios = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/studios/my-listings", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      // টোকেন বা হেডার পাঠানোর প্রয়োজন নেই, কুকি স্বয়ংক্রিয়ভাবে পাস হবে
+      const res = await fetch(`${API_URL}/api/studios/my-listings`, {
+        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
       });
 
       const data = await res.json();
@@ -52,12 +52,9 @@ export default function MyListingsPage() {
     if (!confirm("Are you sure you want to delete this studio listing?")) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/studios/${id}`, {
+      const res = await fetch(`${API_URL}/api/studios/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
       });
 
       const data = await res.json();
@@ -92,14 +89,14 @@ export default function MyListingsPage() {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/studios/${id}`, {
+      const res = await fetch(`${API_URL}/api/studios/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization হেডার বাদ দেওয়া হয়েছে
         },
         body: JSON.stringify(editFormData),
+        credentials: "include", // <-- কুকি পাঠানোর জন্য জরুরি
       });
 
       const data = await res.json();

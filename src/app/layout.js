@@ -40,9 +40,9 @@ export default function RootLayout({ children }) {
               theme="dark"
               toastOptions={{
                 style: {
-                  background: '#ff4a4a',
-                  border: '1px solid #ff4a4a',
-                  color: '#ffffff',
+                  background: '#fd9900',
+                  border: '1px solid #fd9900',
+                  color: '#000000',
                 },
                 className: 'rounded-2xl shadow-2xl',
               }}

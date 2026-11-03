@@ -51,6 +51,7 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, photoURL, password }),
+        credentials: "include", // <-- এটি অবশ্যই থাকতে হবে কুকি রিসিভ করার জন্য
       });
 
       const contentType = res.headers.get("content-type");
@@ -64,12 +65,12 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed!");
       }
 
-      localStorage.setItem("token", data.token);
+      // টোকেন কুকিতে সেভ হয়েছে, ইউজার ইনফো লোকালস্টোরেজে রাখতে পারেন
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      toast.success("Registration successful! Redirecting to login...");
+      toast.success("Registration successful! Redirecting...");
       setTimeout(() => {
-        router.push("/login");
+        router.push("/"); // চাইলে সরাসরি হোমপেজে রিডাইরেক্ট করতে পারেন
       }, 1500);
     } catch (error) {
       toast.error(error.message);
@@ -94,6 +95,7 @@ export default function RegisterPage() {
             name: googleUser.name,
             picture: googleUser.picture 
           }),
+          credentials: "include", // <-- এখানেও যুক্ত করা হয়েছে
         });
 
         const data = await res.json();
@@ -102,7 +104,6 @@ export default function RegisterPage() {
           throw new Error(data.message || "Google authentication failed!");
         }
 
-        localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
         toast.success("Google sign-up successful! Redirecting...");
