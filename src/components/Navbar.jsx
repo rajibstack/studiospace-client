@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck, User, Menu, X } from "lucide-react";
+import { Camera, Sun, Moon, LogOut, LayoutDashboard, PlusCircle, Building, BookmarkCheck, User, Menu, X, Heart } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -160,6 +160,15 @@ export default function Navbar() {
                   >
                     <BookmarkCheck className="w-4 h-4 text-amber-500" /> My Bookings
                   </Link>
+                  {/* 🤍 Saved Wishlist Link Added Here */}
+                  <Link
+                    href="/wishlist"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-neutral-800 transition-colors"
+                  >
+                    <Heart className="w-4 h-4 text-amber-500" /> Saved Wishlist
+                  </Link>
+
                   <div className="border-t border-neutral-800 my-1"></div>
                   <button
                     onClick={() => {
@@ -251,6 +260,15 @@ export default function Navbar() {
               >
                 <BookmarkCheck className="w-4 h-4 text-amber-500" /> My Bookings
               </Link>
+              {/* 🤍 Saved Wishlist Link for Mobile */}
+              <Link
+                href="/wishlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 py-2 px-3 text-sm hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <Heart className="w-4 h-4 text-amber-500" /> Saved Wishlist
+              </Link>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
